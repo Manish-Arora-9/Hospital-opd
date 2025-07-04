@@ -5,7 +5,7 @@ This repository contains a complete Hospital OPD Management System with modules 
 
 ## Project Structure
 
-```
+##
 Hospital-opd/
 ├── css/
 │   ├── style.css               # Common styles for the entire application
@@ -34,7 +34,7 @@ Hospital-opd/
 │   ├── cashflow.html           # Cash Flow Management page
 │   └── reports.html            # Reports & Analytics page
 └── README.md                   # This README file with project details and hosting instructions
-```
+
 
 ## Hosting Instructions
 
