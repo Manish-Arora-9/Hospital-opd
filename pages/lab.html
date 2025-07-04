@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab Test Management - Hospital Management System</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/lab.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Laboratory Management</h1>
+            <div class="header-actions">
+                <button class="btn btn-primary" onclick="showNewTestModal()">
+                    <i class="fas fa-plus"></i> New Test
+                </button>
+                <button class="btn btn-secondary" onclick="showTestCatalog()">
+                    <i class="fas fa-flask"></i> Test Catalog
+                </button>
+            </div>
+        </div>
+
+        <!-- Test Request Form -->
+        <div class="form-section">
+            <h3>Test Request</h3>
+            <form id="testRequestForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="patientUHID">Patient UHID *</label>
+                        <div class="input-group">
+                            <input type="text" id="patientUHID" required>
+                            <button type="button" class="btn btn-info" onclick="searchPatient()">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="patientName">Patient Name</label>
+                        <input type="text" id="patientName" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="requestDate">Request Date</label>
+                        <input type="datetime-local" id="requestDate" required>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h4>Selected Tests</h4>
+                    <div class="test-selection">
+                        <div class="test-categories" id="testCategories">
+                            <!-- Populated dynamically -->
+                        </div>
+                        <div class="selected-tests" id="selectedTests">
+                            <!-- Selected tests appear here -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="totalAmount">Total Amount</label>
+                        <input type="number" id="totalAmount" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="discount">Discount (%)</label>
+                        <input type="number" id="discount" min="0" max="100" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="netAmount">Net Amount</label>
+                        <input type="number" id="netAmount" readonly>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Submit Request</button>
+                    <button type="button" class="btn btn-secondary" onclick="clearTestForm()">Clear</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Pending Tests Table -->
+        <div class="form-section">
+            <h3>Pending Tests</h3>
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Request ID</th>
+                            <th>UHID</th>
+                            <th>Patient Name</th>
+                            <th>Tests</th>
+                            <th>Request Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pendingTestsList">
+                        <!-- Populated dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Test Result Modal -->
+    <div class="modal" id="resultModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Enter Test Results</h2>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="testResultForm">
+                    <input type="hidden" id="resultRequestId">
+                    <div id="resultFields">
+                        <!-- Populated dynamically -->
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Save Results</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeResultModal()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/lab.js"></script>
+</body>
+</html>
