@@ -1,0 +1,286 @@
+/* IPD Management specific styles */
+.ward-overview {
+    margin: 20px 0;
+    padding: 20px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.ward-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.stat-card {
+    background: #f8fafc;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.stat-title {
+    font-size: 14px;
+    color: #64748b;
+    margin-bottom: 5px;
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #1e293b;
+}
+
+.ward-map {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 15px;
+    padding: 20px;
+    background: #f1f5f9;
+    border-radius: 8px;
+}
+
+.bed-card {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.bed-card:hover {
+    transform: translateY(-2px);
+}
+
+.bed-card.occupied {
+    background: #fee2e2;
+    border: 1px solid #ef4444;
+}
+
+.bed-card.available {
+    background: #dcfce7;
+    border: 1px solid #22c55e;
+}
+
+.bed-card.maintenance {
+    background: #fef3c7;
+    border: 1px solid #f59e0b;
+}
+
+.bed-number {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.bed-type {
+    font-size: 12px;
+    color: #64748b;
+}
+
+.bed-status {
+    font-size: 12px;
+    padding: 2px 6px;
+    border-radius: 12px;
+    margin-top: 5px;
+    display: inline-block;
+}
+
+.status-occupied {
+    background: #fee2e2;
+    color: #ef4444;
+}
+
+.status-available {
+    background: #dcfce7;
+    color: #22c55e;
+}
+
+.status-maintenance {
+    background: #fef3c7;
+    color: #f59e0b;
+}
+
+.patient-info {
+    font-size: 12px;
+    margin-top: 5px;
+    color: #475569;
+}
+
+/* Patient View Modal Styles */
+.modal-xl {
+    max-width: 90%;
+    width: 1200px;
+}
+
+.patient-view-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 10px;
+}
+
+.tab-btn {
+    padding: 8px 16px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 14px;
+    color: #64748b;
+    border-radius: 4px;
+}
+
+.tab-btn.active {
+    background: #3b82f6;
+    color: white;
+}
+
+.tab-btn:hover:not(.active) {
+    background: #f1f5f9;
+}
+
+/* Progress Notes Styles */
+.progress-note {
+    background: #f8fafc;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.note-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.note-timestamp {
+    font-size: 12px;
+    color: #64748b;
+}
+
+.note-doctor {
+    font-weight: 500;
+    color: #3b82f6;
+}
+
+.note-content {
+    color: #1e293b;
+    line-height: 1.5;
+}
+
+/* Vitals Chart Styles */
+.vitals-chart {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+/* Treatment Plan Styles */
+.treatment-plan {
+    background: #f8fafc;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.medication-list {
+    margin-top: 15px;
+}
+
+.medication-item {
+    display: grid;
+    grid-template-columns: 1fr auto auto auto;
+    gap: 15px;
+    padding: 10px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.medication-name {
+    font-weight: 500;
+}
+
+.medication-schedule {
+    color: #64748b;
+}
+
+/* Investigation Results Styles */
+.investigation-result {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.result-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.result-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.result-table th,
+.result-table td {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+/* Billing Section Styles */
+.billing-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.billing-card {
+    background: #f8fafc;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.billing-title {
+    font-size: 14px;
+    color: #64748b;
+    margin-bottom: 5px;
+}
+
+.billing-amount {
+    font-size: 20px;
+    font-weight: bold;
+    color: #1e293b;
+}
+
+.charge-list {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.charge-item {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    padding: 10px 15px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.charge-date {
+    color: #64748b;
+    font-size: 14px;
+}
+
+.charge-amount {
+    font-weight: 500;
+}
