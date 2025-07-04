@@ -1,168 +1,111 @@
 /* Bed Visualization Styles */
-.ward-map {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-  padding: 1.5rem;
-  background: #fff;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.ward-section {
-  background: #f8fafc;
-  border-radius: 0.5rem;
-  padding: 1rem;
-}
-
-.ward-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 2px solid #e2e8f0;
-}
-
-.ward-header h3 {
-  font-size: 1.25rem;
-  color: #2d3748;
-  margin: 0;
+.ward-overview {
+    margin: 20px 0;
+    padding: 20px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .ward-stats {
-  background: #edf2f7;
-  padding: 0.25rem 0.75rem;
-  border-radius: 1rem;
-  font-size: 0.875rem;
-  color: #4a5568;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 20px;
 }
 
-.bed-grid {
-  display: grid;
-  gap: 1rem;
-  padding: 1rem;
+.stat-card {
+    background: #f8fafc;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
 }
 
-/* Bed slot styling */
+.stat-title {
+    font-size: 14px;
+    color: #64748b;
+    margin-bottom: 5px;
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #1e293b;
+}
+
+.ward-map {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 15px;
+    padding: 20px;
+    background: #f1f5f9;
+    border-radius: 8px;
+}
+
 .bed-slot {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 1rem;
-  background: white;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.2s;
 }
 
 .bed-slot:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.bed-icon {
-  font-size: 1.5rem;
-  margin-bottom: 0.5rem;
-}
-
-.bed-info {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #4a5568;
-}
-
-/* Bed status color coding */
-.bed-slot.available .bed-icon {
-  color: #48bb78;
-}
-
-.bed-slot.occupied .bed-icon {
-  color: #e53e3e;
-}
-
-.bed-slot.maintenance .bed-icon {
-  color: #ed8936;
-}
-
-.bed-slot.available {
-  border: 2px solid #48bb78;
+    transform: translateY(-2px);
 }
 
 .bed-slot.occupied {
-  border: 2px solid #e53e3e;
+    background: #fee2e2;
+    border: 1px solid #ef4444;
+}
+
+.bed-slot.available {
+    background: #dcfce7;
+    border: 1px solid #22c55e;
 }
 
 .bed-slot.maintenance {
-  border: 2px solid #ed8936;
+    background: #fef3c7;
+    border: 1px solid #f59e0b;
 }
 
-/* Hover card for bed details */
-.bed-hover-card {
-  display: none;
-  position: absolute;
-  top: calc(100% + 10px);
-  left: 50%;
-  transform: translateX(-50%);
-  width: 300px;
-  background: white;
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
-  padding: 1rem;
+.bed-number {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 5px;
 }
 
-.bed-hover-card::before {
-  content: '';
-  position: absolute;
-  top: -8px;
-  left: 50%;
-  transform: translateX(-50%);
-  border-left: 8px solid transparent;
-  border-right: 8px solid transparent;
-  border-bottom: 8px solid white;
+.bed-type {
+    font-size: 12px;
+    color: #64748b;
 }
 
-.hover-header {
-  border-bottom: 1px solid #e2e8f0;
-  padding-bottom: 0.5rem;
-  margin-bottom: 0.5rem;
+.bed-status {
+    font-size: 12px;
+    padding: 2px 6px;
+    border-radius: 12px;
+    margin-top: 5px;
+    display: inline-block;
 }
 
-.hover-header strong {
-  display: block;
-  color: #2d3748;
-  font-size: 1rem;
+.status-occupied {
+    background: #fee2e2;
+    color: #ef4444;
 }
 
-.hover-header .uhid {
-  font-size: 0.75rem;
-  color: #718096;
+.status-available {
+    background: #dcfce7;
+    color: #22c55e;
 }
 
-.hover-content {
-  font-size: 0.875rem;
+.status-maintenance {
+    background: #fef3c7;
+    color: #f59e0b;
 }
 
-.info-row {
-  display: flex;
-  justify-content: space-between;
-  padding: 0.25rem 0;
-}
-
-.info-row .label {
-  color: #718096;
-  font-weight: 500;
-}
-
-/* Responsive adjustments */
-@media (max-width: 1024px) {
-  .bed-grid {
-    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)) !important;
-  }
-  
-  .bed-hover-card {
-    width: 250px;
-  }
+.bed-info {
+    font-size: 12px;
+    margin-top: 5px;
+    color: #475569;
 }
