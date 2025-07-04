@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Management System</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>HMS</h2>
+            <p class="version">v2.0</p>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-section">
+                <h3>Main</h3>
+                <a href="pages/dashboard.html" class="nav-item" data-page="dashboard">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <h3>Patient Care</h3>
+                <a href="pages/registration.html" class="nav-item" data-page="registration">
+                    <i class="fas fa-user-plus"></i>
+                    <span>Registration</span>
+                </a>
+                <a href="pages/opd.html" class="nav-item" data-page="opd">
+                    <i class="fas fa-stethoscope"></i>
+                    <span>OPD</span>
+                </a>
+                <a href="pages/ipd.html" class="nav-item" data-page="ipd">
+                    <i class="fas fa-bed"></i>
+                    <span>IPD</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <h3>Services</h3>
+                <a href="pages/appointments.html" class="nav-item" data-page="appointments">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Appointments</span>
+                </a>
+                <a href="pages/lab.html" class="nav-item" data-page="lab">
+                    <i class="fas fa-flask"></i>
+                    <span>Lab Tests</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <h3>Finance</h3>
+                <a href="pages/cashflow.html" class="nav-item" data-page="cashflow">
+                    <i class="fas fa-money-bill-wave"></i>
+                    <span>Cash Flow</span>
+                </a>
+                <a href="pages/billing.html" class="nav-item" data-page="billing">
+                    <i class="fas fa-file-invoice"></i>
+                    <span>Billing</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <h3>Reports</h3>
+                <a href="pages/reports.html" class="nav-item" data-page="reports">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Analytics</span>
+                </a>
+            </div>
+        </nav>
+        <button id="toggleSidebar" class="toggle-btn">
+            <i class="fas fa-bars"></i>
+        </button>
+    </div>
+
+    <!-- Main Content Container -->
+    <div class="main-content" id="mainContent">
+        <div class="top-bar">
+            <div class="user-info">
+                <span id="currentDateTime"></span>
+                <span class="user">
+                    <i class="fas fa-user-circle"></i>
+                    <span id="userName">Manish Arora</span>
+                </span>
+            </div>
+        </div>
+        <div id="pageContent"></div>
+    </div>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
