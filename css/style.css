@@ -1,14 +1,16 @@
 /* Global Variables and Reset */
 :root {
-  --primary-color: #2c3e50;
-  --secondary-color: #3498db;
-  --accent-color: #e74c3c;
-  --light-gray: #ecf0f1;
-  --medium-gray: #bdc3c7;
-  --dark-gray: #2d3436;
-  --font-family: 'Open Sans', sans-serif;
-  --header-height: 60px;
-  --sidebar-width: 250px;
+    --primary-color: #1e293b;
+    --secondary-color: #3b82f6;
+    --accent-color: #ef4444;
+    --success-color: #22c55e;
+    --warning-color: #f59e0b;
+    --light-gray: #f1f5f9;
+    --medium-gray: #64748b;
+    --dark-gray: #1e293b;
+    --font-family: 'Open Sans', sans-serif;
+    --header-height: 60px;
+    --sidebar-width: 250px;
 }
 
 *,
