@@ -1,0 +1,213 @@
+// Bed visualization configuration
+const WARD_LAYOUT = {
+    'General': {
+        icon: 'fa-bed',
+        color: '#4a5568',
+        rows: 4,
+        cols: 5,
+        beds: 20
+    },
+    'Semi-Private': {
+        icon: 'fa-bed',
+        color: '#4c51bf',
+        rows: 2,
+        cols: 5,
+        beds: 10
+    },
+    'Private': {
+        icon: 'fa-bed',
+        color: '#2b6cb0',
+        rows: 1,
+        cols: 5,
+        beds: 5
+    },
+    'ICU': {
+        icon: 'fa-procedures',
+        color: '#c53030',
+        rows: 2,
+        cols: 4,
+        beds: 8
+    }
+};
+
+// Initialize ward visualization
+function initializeWardVisualization() {
+    const container = document.getElementById('wardMap');
+    container.innerHTML = ''; // Clear existing content
+
+    // Create ward sections
+    Object.entries(WARD_LAYOUT).forEach(([wardType, config]) => {
+        const wardSection = createWardSection(wardType, config);
+        container.appendChild(wardSection);
+    });
+
+    // Update bed statuses
+    updateBedStatuses();
+}
+
+// Create ward section
+function createWardSection(wardType, config) {
+    const section = document.createElement('div');
+    section.className = 'ward-section';
+    
+    const header = document.createElement('div');
+    header.className = 'ward-header';
+    header.innerHTML = `
+        <h3>${wardType} Ward</h3>
+        <div class="ward-stats">
+            <span class="available-count">0</span>/<span class="total-count">${config.beds}</span>
+        </div>
+    `;
+    
+    const grid = document.createElement('div');
+    grid.className = 'bed-grid';
+    grid.style.gridTemplate = `repeat(${config.rows}, 1fr) / repeat(${config.cols}, 1fr)`;
+
+    // Create bed slots
+    let bedCount = 1;
+    for (let i = 0; i < config.rows; i++) {
+        for (let j = 0; j < config.cols; j++) {
+            if (bedCount <= config.beds) {
+                const bedNumber = `${wardType.charAt(0)}${String(bedCount).padStart(2, '0')}`;
+                const bedSlot = createBedSlot(bedNumber, config);
+                grid.appendChild(bedSlot);
+                bedCount++;
+            }
+        }
+    }
+
+    section.appendChild(header);
+    section.appendChild(grid);
+    return section;
+}
+
+// Create bed slot
+function createBedSlot(bedNumber, config) {
+    const slot = document.createElement('div');
+    slot.className = 'bed-slot';
+    slot.dataset.bedNumber = bedNumber;
+    
+    const bedIcon = document.createElement('div');
+    bedIcon.className = 'bed-icon';
+    bedIcon.innerHTML = `<i class="fas ${config.icon}"></i>`;
+    
+    const bedInfo = document.createElement('div');
+    bedInfo.className = 'bed-info';
+    bedInfo.textContent = bedNumber;
+    
+    slot.appendChild(bedIcon);
+    slot.appendChild(bedInfo);
+    
+    // Add hover card
+    const hoverCard = createHoverCard(bedNumber);
+    slot.appendChild(hoverCard);
+    
+    // Add event listeners
+    slot.addEventListener('mouseenter', () => showBedDetails(bedNumber));
+    slot.addEventListener('mouseleave', () => hideHoverCard(bedNumber));
+    slot.addEventListener('click', () => handleBedClick(bedNumber));
+    
+    return slot;
+}
+
+// Create hover card
+function createHoverCard(bedNumber) {
+    const card = document.createElement('div');
+    card.className = 'bed-hover-card';
+    card.id = `hover-${bedNumber}`;
+    return card;
+}
+
+// Show bed details on hover
+function showBedDetails(bedNumber) {
+    const patient = getPatientByBed(bedNumber);
+    const card = document.getElementById(`hover-${bedNumber}`);
+    
+    if (patient) {
+        const admission = getAdmission(patient.admissionId);
+        const stayDays = calculateStayDays(admission.admissionDate);
+        
+        card.innerHTML = `
+            <div class="hover-header">
+                <strong>${patient.patientName}</strong>
+                <span class="uhid">UHID: ${patient.uhid}</span>
+            </div>
+            <div class="hover-content">
+                <div class="info-row">
+                    <span class="label">Age/Gender:</span>
+                    <span>${patient.age}/${patient.gender}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Doctor:</span>
+                    <span>${admission.doctor}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Admitted:</span>
+                    <span>${formatDateTime(admission.admissionDate)}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Stay Duration:</span>
+                    <span>${stayDays} days</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Diagnosis:</span>
+                    <span>${admission.diagnosis}</span>
+                </div>
+            </div>
+        `;
+        card.style.display = 'block';
+    }
+}
+
+// Hide hover card
+function hideHoverCard(bedNumber) {
+    const card = document.getElementById(`hover-${bedNumber}`);
+    card.style.display = 'none';
+}
+
+// Update bed statuses
+function updateBedStatuses() {
+    const admissions = getAllAdmissions().filter(a => a.status === 'Admitted');
+    const maintenance = getBedMaintenance();
+
+    document.querySelectorAll('.bed-slot').forEach(slot => {
+        const bedNumber = slot.dataset.bedNumber;
+        const patient = admissions.find(a => a.bedNumber === bedNumber);
+        
+        if (patient) {
+            slot.classList.add('occupied');
+            slot.classList.remove('available', 'maintenance');
+        } else if (maintenance.includes(bedNumber)) {
+            slot.classList.add('maintenance');
+            slot.classList.remove('available', 'occupied');
+        } else {
+            slot.classList.add('available');
+            slot.classList.remove('occupied', 'maintenance');
+        }
+    });
+
+    // Update ward statistics
+    updateWardStats();
+}
+
+// Update ward statistics
+function updateWardStats() {
+    Object.keys(WARD_LAYOUT).forEach(wardType => {
+        const section = document.querySelector(`.ward-section:has(h3:contains('${wardType}'))`);
+        const availableCount = section.querySelectorAll('.bed-slot.available').length;
+        const totalCount = WARD_LAYOUT[wardType].beds;
+        
+        section.querySelector('.available-count').textContent = availableCount;
+        section.querySelector('.total-count').textContent = totalCount;
+    });
+}
+
+// Handle bed click
+function handleBedClick(bedNumber) {
+    const patient = getPatientByBed(bedNumber);
+    if (patient) {
+        showPatientView(patient.admissionId);
+    } else {
+        showAdmissionModal(bedNumber);
+    }
+}
