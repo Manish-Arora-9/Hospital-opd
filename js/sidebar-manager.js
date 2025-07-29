@@ -84,6 +84,10 @@ class SidebarManager {
         
         // Ensure main content has proper margin
         this.adjustMainContent();
+        
+        // Setup event listeners after sidebar is inserted
+        this.setupEventListeners();
+        this.initializeSections();
     }
 
     createFallbackSidebar() {
@@ -103,7 +107,7 @@ class SidebarManager {
                 <nav class="sidebar-nav">
                     <!-- Main Section -->
                     <div class="nav-section" data-section="main">
-                        <h3 class="nav-section-header" onclick="toggleSection('main')">
+                        <h3 class="nav-section-header">
                             <i class="fas fa-chevron-down section-toggle"></i>
                             Main
                         </h3>
@@ -117,7 +121,7 @@ class SidebarManager {
 
                     <!-- Patient Care Section -->
                     <div class="nav-section" data-section="patient-care">
-                        <h3 class="nav-section-header" onclick="toggleSection('patient-care')">
+                        <h3 class="nav-section-header">
                             <i class="fas fa-chevron-down section-toggle"></i>
                             Patient Care
                         </h3>
@@ -143,7 +147,7 @@ class SidebarManager {
 
                     <!-- Services Section -->
                     <div class="nav-section" data-section="services">
-                        <h3 class="nav-section-header" onclick="toggleSection('services')">
+                        <h3 class="nav-section-header">
                             <i class="fas fa-chevron-down section-toggle"></i>
                             Services
                         </h3>
@@ -157,7 +161,7 @@ class SidebarManager {
 
                     <!-- Masters Section -->
                     <div class="nav-section" data-section="masters">
-                        <h3 class="nav-section-header" onclick="toggleSection('masters')">
+                        <h3 class="nav-section-header">
                             <i class="fas fa-chevron-down section-toggle"></i>
                             Masters
                         </h3>
@@ -183,7 +187,7 @@ class SidebarManager {
 
                     <!-- Finance Section -->
                     <div class="nav-section" data-section="finance">
-                        <h3 class="nav-section-header" onclick="toggleSection('finance')">
+                        <h3 class="nav-section-header">
                             <i class="fas fa-chevron-down section-toggle"></i>
                             Finance
                         </h3>
@@ -197,7 +201,7 @@ class SidebarManager {
 
                     <!-- Reports Section -->
                     <div class="nav-section" data-section="reports">
-                        <h3 class="nav-section-header" onclick="toggleSection('reports')">
+                        <h3 class="nav-section-header">
                             <i class="fas fa-chevron-down section-toggle"></i>
                             Reports
                         </h3>
@@ -216,6 +220,10 @@ class SidebarManager {
         container.innerHTML = fallbackSidebar;
         document.body.insertBefore(container.firstElementChild, document.body.firstChild);
         this.adjustMainContent();
+        
+        // Setup event listeners after sidebar is inserted
+        this.setupEventListeners();
+        this.initializeSections();
     }
 
     adjustMainContent() {
@@ -231,6 +239,12 @@ class SidebarManager {
     }
 
     setupEventListeners() {
+        // Remove any existing listeners first to prevent duplicates
+        document.querySelectorAll('.nav-section-header').forEach(header => {
+            const newHeader = header.cloneNode(true);
+            header.parentNode.replaceChild(newHeader, header);
+        });
+
         // Toggle sidebar button
         const toggleBtn = document.getElementById('toggleSidebar');
         if (toggleBtn) {
@@ -260,6 +274,9 @@ class SidebarManager {
                     }
                 }
             });
+            
+            // Add cursor pointer style
+            header.style.cursor = 'pointer';
         });
 
         // Close sidebar on mobile when clicking outside
@@ -279,6 +296,7 @@ class SidebarManager {
 
     initializeSections() {
         const sections = document.querySelectorAll('.nav-section');
+        
         sections.forEach(section => {
             const sectionName = section.dataset.section;
             const header = section.querySelector('.nav-section-header');
@@ -297,18 +315,20 @@ class SidebarManager {
 
     toggleSection(sectionName) {
         const section = this.sidebarSections.get(sectionName);
-        if (!section) return;
+        if (!section) {
+            return;
+        }
 
         const isExpanded = section.content.classList.contains('expanded');
         const toggle = section.header.querySelector('.section-toggle');
 
         if (isExpanded) {
             section.content.classList.remove('expanded');
-            toggle.style.transform = 'rotate(0deg)';
+            if (toggle) toggle.style.transform = 'rotate(0deg)';
             section.isExpanded = false;
         } else {
             section.content.classList.add('expanded');
-            toggle.style.transform = 'rotate(180deg)';
+            if (toggle) toggle.style.transform = 'rotate(180deg)';
             section.isExpanded = true;
         }
 
