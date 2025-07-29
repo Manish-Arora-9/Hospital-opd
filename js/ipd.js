@@ -38,7 +38,41 @@ document.addEventListener('DOMContentLoaded', function() {
     loadCurrentPatients();
     setupEventListeners();
     updateBedStatistics();
+    loadDoctorsIntoSelect();
+    setDefaultAdmissionDate();
 });
+
+// Load doctors into department select
+function loadDoctorsIntoSelect() {
+    const deptSelect = document.getElementById('department');
+    const doctorSelect = document.getElementById('doctor');
+    
+    if (deptSelect) {
+        deptSelect.addEventListener('change', function() {
+            const selectedDept = this.value;
+            doctorSelect.innerHTML = '<option value="">Select Doctor</option>';
+            
+            if (selectedDept && DOCTORS_BY_DEPT[selectedDept]) {
+                DOCTORS_BY_DEPT[selectedDept].forEach(doctor => {
+                    const option = document.createElement('option');
+                    option.value = doctor.id;
+                    option.textContent = `${doctor.name} - ${doctor.speciality}`;
+                    doctorSelect.appendChild(option);
+                });
+            }
+        });
+    }
+}
+
+// Set default admission date to current date
+function setDefaultAdmissionDate() {
+    const admissionDateInput = document.getElementById('admissionDate');
+    if (admissionDateInput) {
+        const now = new Date();
+        const dateString = now.toISOString().slice(0, 16); // Format: YYYY-MM-DDTHH:MM
+        admissionDateInput.value = dateString;
+    }
+}
 
 // Initialize ward map
 function initializeWardMap() {
@@ -448,3 +482,378 @@ function showAlert(message, type) {
         alert.remove();
     }, 3000);
 }
+
+// Modal Functions
+function showAdmissionModal() {
+    const modal = document.getElementById('admissionModal');
+    if (modal) {
+        modal.style.display = 'block';
+        setDefaultAdmissionDate();
+        generateNewUHID();
+    }
+}
+
+function closeAdmissionModal() {
+    const modal = document.getElementById('admissionModal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.getElementById('admissionForm').reset();
+    }
+}
+
+function showBedManagementModal() {
+    const modal = document.getElementById('bedManagementModal');
+    if (modal) {
+        modal.style.display = 'block';
+        loadBedManagementData();
+    }
+}
+
+function showBedTab(tabName) {
+    // Hide all bed tab contents
+    document.querySelectorAll('.bed-tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Remove active class from all buttons
+    document.querySelectorAll('.bed-management-tabs .tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Show selected tab
+    document.getElementById(`bed${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`).classList.add('active');
+    event.target.classList.add('active');
+}
+
+function loadBedManagementData() {
+    loadBedStatusGrid();
+    loadMaintenanceBeds();
+}
+
+function loadBedStatusGrid() {
+    const grid = document.getElementById('bedStatusGrid');
+    const beds = getAllBeds();
+    
+    grid.innerHTML = beds.map(bed => `
+        <div class="bed-card ${bed.status.toLowerCase()}">
+            <div class="bed-number">${bed.number}</div>
+            <div class="bed-type">${bed.wardType}</div>
+            <div class="bed-status status-${bed.status.toLowerCase()}">${bed.status}</div>
+            ${bed.patient ? `<div class="patient-info">${bed.patient}</div>` : ''}
+        </div>
+    `).join('');
+}
+
+function loadMaintenanceBeds() {
+    const select = document.getElementById('maintenanceBed');
+    const beds = getAllBeds().filter(bed => bed.status === 'Available');
+    
+    select.innerHTML = '<option value="">Select Bed</option>' + 
+        beds.map(bed => `<option value="${bed.number}">${bed.number} - ${bed.wardType}</option>`).join('');
+}
+
+function searchPatient() {
+    const uhid = document.getElementById('patientUHID').value;
+    if (!uhid) {
+        showAlert('Please enter UHID', 'warning');
+        return;
+    }
+    
+    // Mock patient search - in real app, this would call an API
+    const mockPatients = [
+        { uhid: 'BTL001', name: 'John Doe', age: 35, gender: 'Male', phone: '9876543210' },
+        { uhid: 'BTL002', name: 'Jane Smith', age: 28, gender: 'Female', phone: '9876543211' },
+        { uhid: 'BTL003', name: 'Robert Johnson', age: 45, gender: 'Male', phone: '9876543212' }
+    ];
+    
+    const patient = mockPatients.find(p => p.uhid === uhid);
+    
+    if (patient) {
+        document.getElementById('patientName').value = patient.name;
+        document.getElementById('patientAge').value = patient.age;
+        showAlert('Patient found successfully', 'success');
+    } else {
+        showAlert('Patient not found', 'error');
+        document.getElementById('patientName').value = '';
+        document.getElementById('patientAge').value = '';
+    }
+}
+
+function generateNewUHID() {
+    const uhidInput = document.getElementById('patientUHID');
+    if (uhidInput && !uhidInput.value) {
+        const timestamp = Date.now().toString().slice(-6);
+        uhidInput.value = `BTL${timestamp}`;
+    }
+}
+
+function getAllBeds() {
+    const storedBeds = localStorage.getItem('hospital_beds');
+    if (storedBeds) {
+        return JSON.parse(storedBeds);
+    }
+    
+    // Initialize default beds
+    const defaultBeds = [];
+    let bedCounter = 1;
+    
+    Object.entries(WARDS).forEach(([wardType, config]) => {
+        for (let i = 1; i <= config.beds; i++) {
+            const bedNumber = `${wardType.charAt(0)}${String(bedCounter).padStart(2, '0')}`;
+            defaultBeds.push({
+                number: bedNumber,
+                wardType: wardType,
+                status: 'Available',
+                patient: null,
+                admissionId: null
+            });
+            bedCounter++;
+        }
+    });
+    
+    localStorage.setItem('hospital_beds', JSON.stringify(defaultBeds));
+    return defaultBeds;
+}
+
+// Printing Functions
+function printAdmissionForm() {
+    const formData = getAdmissionFormData();
+    if (!formData) {
+        showAlert('Please fill all required fields', 'warning');
+        return;
+    }
+    
+    const printContent = generateAdmissionPrintContent(formData);
+    openPrintWindow(printContent, 'IPD Admission Form');
+}
+
+function printIPDReport() {
+    const patients = getAllAdmissions();
+    const reportContent = generateIPDReportContent(patients);
+    openPrintWindow(reportContent, 'IPD Status Report');
+}
+
+function getAdmissionFormData() {
+    const form = document.getElementById('admissionForm');
+    const formData = new FormData(form);
+    const data = {};
+    
+    // Get all form inputs
+    const inputs = form.querySelectorAll('input, select, textarea');
+    inputs.forEach(input => {
+        data[input.id] = input.value;
+    });
+    
+    // Validate required fields
+    const required = ['patientUHID', 'patientName', 'admissionDate', 'department', 'doctor', 'wardType', 'bedNumber', 'diagnosis', 'presenting_complaints', 'paymentType', 'advanceAmount', 'paymentMode'];
+    
+    for (let field of required) {
+        if (!data[field]) {
+            return null;
+        }
+    }
+    
+    return data;
+}
+
+function generateAdmissionPrintContent(data) {
+    const currentDate = new Date().toLocaleDateString('en-IN');
+    const currentTime = new Date().toLocaleTimeString('en-IN');
+    
+    return `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>IPD Admission Form</title>
+            <style>
+                body { font-family: Arial, sans-serif; margin: 20px; }
+                .header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
+                .row { display: flex; margin-bottom: 10px; }
+                .col { flex: 1; margin-right: 20px; }
+                .label { font-weight: bold; }
+                .section { margin-bottom: 20px; border: 1px solid #ccc; padding: 10px; }
+                .section-title { font-size: 16px; font-weight: bold; background: #f0f0f0; padding: 5px; margin: -10px -10px 10px -10px; }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>Hospital Management System</h1>
+                <h2>IPD Admission Form</h2>
+                <p>Date: ${currentDate} | Time: ${currentTime}</p>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">Patient Information</div>
+                <div class="row">
+                    <div class="col"><span class="label">UHID:</span> ${data.patientUHID}</div>
+                    <div class="col"><span class="label">Name:</span> ${data.patientName}</div>
+                    <div class="col"><span class="label">Age:</span> ${data.patientAge}</div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">Admission Details</div>
+                <div class="row">
+                    <div class="col"><span class="label">Admission Date:</span> ${new Date(data.admissionDate).toLocaleString('en-IN')}</div>
+                    <div class="col"><span class="label">Department:</span> ${data.department}</div>
+                </div>
+                <div class="row">
+                    <div class="col"><span class="label">Doctor:</span> ${getDoctorName(data.doctor)}</div>
+                    <div class="col"><span class="label">Ward Type:</span> ${data.wardType}</div>
+                    <div class="col"><span class="label">Bed Number:</span> ${data.bedNumber}</div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">Clinical Information</div>
+                <div class="row">
+                    <div class="col"><span class="label">Diagnosis:</span> ${data.diagnosis}</div>
+                </div>
+                <div class="row">
+                    <div class="col"><span class="label">Presenting Complaints:</span> ${data.presenting_complaints}</div>
+                </div>
+                <div class="row">
+                    <div class="col"><span class="label">BP:</span> ${data.vitals_bp || 'N/A'}</div>
+                    <div class="col"><span class="label">Pulse:</span> ${data.vitals_pulse || 'N/A'}</div>
+                    <div class="col"><span class="label">Temp:</span> ${data.vitals_temp || 'N/A'}</div>
+                    <div class="col"><span class="label">SpO2:</span> ${data.vitals_spo2 || 'N/A'}</div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">Payment Information</div>
+                <div class="row">
+                    <div class="col"><span class="label">Payment Type:</span> ${data.paymentType}</div>
+                    <div class="col"><span class="label">Advance Amount:</span> ₹${data.advanceAmount}</div>
+                    <div class="col"><span class="label">Payment Mode:</span> ${data.paymentMode}</div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 40px;">
+                <div style="float: left;">
+                    <p>Patient/Guardian Signature: ___________________</p>
+                </div>
+                <div style="float: right;">
+                    <p>Doctor Signature: ___________________</p>
+                </div>
+                <div style="clear: both;"></div>
+            </div>
+        </body>
+        </html>
+    `;
+}
+
+function generateIPDReportContent(patients) {
+    const currentDate = new Date().toLocaleDateString('en-IN');
+    const currentTime = new Date().toLocaleTimeString('en-IN');
+    
+    const stats = {
+        total: patients.length,
+        admitted: patients.filter(p => p.status === 'Admitted').length,
+        discharged: patients.filter(p => p.status === 'Discharged').length
+    };
+    
+    return `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>IPD Status Report</title>
+            <style>
+                body { font-family: Arial, sans-serif; margin: 20px; }
+                .header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
+                table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                th { background-color: #f2f2f2; }
+                .stats { display: flex; justify-content: space-around; margin: 20px 0; }
+                .stat-box { border: 1px solid #ccc; padding: 10px; text-align: center; }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>Hospital Management System</h1>
+                <h2>IPD Status Report</h2>
+                <p>Generated on: ${currentDate} at ${currentTime}</p>
+            </div>
+            
+            <div class="stats">
+                <div class="stat-box">
+                    <h3>${stats.total}</h3>
+                    <p>Total Patients</p>
+                </div>
+                <div class="stat-box">
+                    <h3>${stats.admitted}</h3>
+                    <p>Currently Admitted</p>
+                </div>
+                <div class="stat-box">
+                    <h3>${stats.discharged}</h3>
+                    <p>Discharged</p>
+                </div>
+            </div>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>UHID</th>
+                        <th>Patient Name</th>
+                        <th>Bed No.</th>
+                        <th>Department</th>
+                        <th>Doctor</th>
+                        <th>Admission Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${patients.map(patient => `
+                        <tr>
+                            <td>${patient.uhid}</td>
+                            <td>${patient.patientName}</td>
+                            <td>${patient.bedNumber}</td>
+                            <td>${patient.department}</td>
+                            <td>${getDoctorName(patient.doctor)}</td>
+                            <td>${new Date(patient.admissionDate).toLocaleDateString('en-IN')}</td>
+                            <td>${patient.status}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </body>
+        </html>
+    `;
+}
+
+function getDoctorName(doctorId) {
+    for (let dept in DOCTORS_BY_DEPT) {
+        const doctor = DOCTORS_BY_DEPT[dept].find(d => d.id == doctorId);
+        if (doctor) return doctor.name;
+    }
+    return 'Unknown Doctor';
+}
+
+function openPrintWindow(content, title) {
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(content);
+    printWindow.document.close();
+    printWindow.focus();
+    
+    setTimeout(() => {
+        printWindow.print();
+        printWindow.close();
+    }, 250);
+}
+
+// Close modals when clicking outside
+window.onclick = function(event) {
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach(modal => {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
+}
+
+// Close modals when clicking close button
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('close')) {
+        e.target.closest('.modal').style.display = 'none';
+    }
+});

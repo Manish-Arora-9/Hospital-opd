@@ -5,13 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lab Test Management - Hospital Management System</title>
     <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/sidebar.css">
     <link rel="stylesheet" href="../css/lab.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Laboratory Management</h1>
-            <div class="header-actions">
+    <!-- Standardized Sidebar will be loaded here by SidebarManager -->
+
+    <!-- Main Content Container -->
+    <div class="main-content" id="mainContent">
+        <div class="top-bar">
+            <div class="mobile-menu-btn" id="mobileMenuBtn">
+                <i class="fas fa-bars"></i>
+            </div>
+            <div class="page-title">
+                <h1>Laboratory Management</h1>
+            </div>
+            <div class="user-info">
+                <span id="currentDateTime"></span>
+                <span class="user">
+                    <i class="fas fa-user-circle"></i>
+                    <span id="userName">Manish Arora</span>
+                </span>
+            </div>
+        </div>
+
+        <div class="page-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Laboratory Management</h2>
+                    <div class="header-actions">
                 <button class="btn btn-primary" onclick="showNewTestModal()">
                     <i class="fas fa-plus"></i> New Test
                 </button>
@@ -124,7 +147,10 @@
             </div>
         </div>
     </div>
+</div>
 
-    <script src="../js/lab.js"></script>
+<script src="../js/sidebar-manager.js"></script>
+<script src="../js/main.js"></script>
+<script src="../js/lab.js"></script>
 </body>
 </html>

@@ -5,14 +5,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cash Flow Management - Hospital Management System</title>
     <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/sidebar.css">
     <link rel="stylesheet" href="../css/cashflow.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.css">
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Cash Flow Management</h1>
-            <div class="header-actions">
+    <!-- Standardized Sidebar will be loaded here by SidebarManager -->
+
+    <!-- Main Content Container -->
+    <div class="main-content" id="mainContent">
+        <div class="top-bar">
+            <div class="mobile-menu-btn" id="mobileMenuBtn">
+                <i class="fas fa-bars"></i>
+            </div>
+            <div class="page-title">
+                <h1>Cash Flow Management</h1>
+            </div>
+            <div class="user-info">
+                <span id="currentDateTime"></span>
+                <span class="user">
+                    <i class="fas fa-user-circle"></i>
+                    <span id="userName">Manish Arora</span>
+                </span>
+            </div>
+        </div>
+
+        <div class="page-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Cash Flow Management</h2>
+                    <div class="header-actions">
                 <button class="btn btn-primary" onclick="showTransactionModal('income')">
                     <i class="fas fa-plus"></i> Add Income
                 </button>
@@ -204,8 +227,11 @@
             </div>
         </div>
     </div>
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
-    <script src="../js/cashflow.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+<script src="../js/sidebar-manager.js"></script>
+<script src="../js/main.js"></script>
+<script src="../js/cashflow.js"></script>
 </body>
 </html>

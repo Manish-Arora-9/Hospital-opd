@@ -1,5 +1,5 @@
 // Constants
-const UHID_PREFIX = 'HMS';
+const UHID_PREFIX = 'BTL';
 let currentYear = new Date().getFullYear().toString().substr(-2);
 let currentCount = 0;
 
@@ -77,28 +77,52 @@ function validateForm() {
     ];
 
     let isValid = true;
+    const missingFields = [];
+    
     requiredFields.forEach(field => {
         const element = document.getElementById(field);
         if (!element.value.trim()) {
             element.classList.add('error');
+            missingFields.push(element.getAttribute('placeholder') || field);
             isValid = false;
         } else {
             element.classList.remove('error');
         }
     });
 
+    if (missingFields.length > 0) {
+        showNotification(`Please fill in required fields: ${missingFields.join(', ')}`, 'error');
+        return false;
+    }
+
     // Mobile validation
     const mobile = document.getElementById('mobile');
     if (mobile.value && !mobile.value.match(/^[0-9]{10}$/)) {
         mobile.classList.add('error');
-        isValid = false;
+        showNotification('Please enter a valid 10-digit mobile number', 'error');
+        return false;
+    } else {
+        mobile.classList.remove('error');
     }
 
     // Email validation if provided
     const email = document.getElementById('email');
     if (email.value && !email.value.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
         email.classList.add('error');
-        isValid = false;
+        showNotification('Please enter a valid email address', 'error');
+        return false;
+    } else {
+        email.classList.remove('error');
+    }
+
+    // Check for duplicate mobile number if using HMS data store
+    if (window.hmsData) {
+        const existingPatient = window.hmsData.patients.find(p => p.mobile === mobile.value);
+        if (existingPatient) {
+            mobile.classList.add('error');
+            showNotification('A patient with this mobile number already exists', 'warning');
+            return false;
+        }
     }
 
     return isValid;
@@ -107,7 +131,6 @@ function validateForm() {
 // Save patient data
 function savePatient() {
     const formData = {
-        uhid: document.getElementById('uhid').value,
         registrationDate: document.getElementById('registrationDate').value,
         firstName: document.getElementById('firstName').value,
         lastName: document.getElementById('lastName').value,
@@ -125,25 +148,237 @@ function savePatient() {
         medications: document.getElementById('medications').value,
         emergencyName: document.getElementById('emergencyName').value,
         emergencyRelation: document.getElementById('emergencyRelation').value,
-        emergencyPhone: document.getElementById('emergencyPhone').value,
-        createdAt: new Date().toISOString(),
-        lastUpdated: new Date().toISOString()
+        emergencyPhone: document.getElementById('emergencyPhone').value
     };
 
-    // Save to localStorage
-    const patients = JSON.parse(localStorage.getItem('patients') || '[]');
-    patients.push(formData);
-    localStorage.setItem('patients', JSON.stringify(patients));
+    // Calculate age if DOB is provided
+    if (formData.dob) {
+        const today = new Date();
+        const birthDate = new Date(formData.dob);
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+        
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+        formData.age = age;
+    }
 
-    // Save registration date wise
-    const dateKey = formData.registrationDate;
-    const datePatients = JSON.parse(localStorage.getItem('patients_' + dateKey) || '[]');
-    datePatients.push(formData);
-    localStorage.setItem('patients_' + dateKey, JSON.stringify(datePatients));
+    try {
+        // Check if HMSDataStore is available
+        if (window.hmsData) {
+            // Use the integrated data store
+            const savedPatient = window.hmsData.addPatient(formData);
+            showNotification(`Patient registered successfully! UHID: ${savedPatient.uhid}`, 'success');
+            
+            // Auto-print option
+            setTimeout(() => {
+                if (confirm('Would you like to print the patient registration card?')) {
+                    printPatientCard(savedPatient);
+                }
+            }, 1000);
+        } else {
+            // Fallback to old localStorage method
+            formData.uhid = document.getElementById('uhid').value;
+            formData.createdAt = new Date().toISOString();
+            formData.lastUpdated = new Date().toISOString();
+            
+            const patients = JSON.parse(localStorage.getItem('patients') || '[]');
+            patients.push(formData);
+            localStorage.setItem('patients', JSON.stringify(patients));
+            
+            showSuccess('Patient registered successfully!');
+        }
+        
+        clearForm();
+        if (!window.hmsData) {
+            generateNewUHID();
+        }
+        
+    } catch (error) {
+        console.error('Registration error:', error);
+        showNotification('Error registering patient. Please try again.', 'error');
+    }
+}
 
-    showSuccess('Patient registered successfully!');
-    clearForm();
-    generateNewUHID();
+// Print patient card
+function printPatientCard(patient) {
+    const cardHTML = generatePatientCardHTML(patient);
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(cardHTML);
+    printWindow.document.close();
+    
+    printWindow.onload = function() {
+        printWindow.focus();
+        printWindow.print();
+    };
+}
+
+function generatePatientCardHTML(patient) {
+    return `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Patient Registration Card - ${patient.uhid}</title>
+            <style>
+                body { 
+                    font-family: Arial, sans-serif; 
+                    margin: 20px; 
+                    background: #f0f0f0;
+                }
+                .card-container {
+                    background: white;
+                    max-width: 500px;
+                    margin: 0 auto;
+                    border-radius: 10px;
+                    overflow: hidden;
+                    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+                }
+                .card-header { 
+                    background: linear-gradient(135deg, #1e293b, #3b82f6);
+                    color: white; 
+                    padding: 20px; 
+                    text-align: center; 
+                }
+                .hospital-name { 
+                    font-size: 20px; 
+                    font-weight: bold; 
+                    margin-bottom: 5px; 
+                }
+                .card-subtitle { 
+                    font-size: 14px; 
+                    opacity: 0.9; 
+                }
+                .card-body { 
+                    padding: 25px; 
+                }
+                .patient-name { 
+                    font-size: 24px; 
+                    font-weight: bold; 
+                    color: #1e293b;
+                    text-align: center;
+                    margin-bottom: 20px;
+                }
+                .uhid-section {
+                    background: #f8f9fa;
+                    padding: 15px;
+                    border-radius: 8px;
+                    text-align: center;
+                    margin-bottom: 20px;
+                }
+                .uhid { 
+                    font-size: 18px; 
+                    font-weight: bold; 
+                    color: #3b82f6; 
+                    letter-spacing: 2px;
+                }
+                .patient-info { 
+                    display: grid; 
+                    grid-template-columns: 1fr 1fr; 
+                    gap: 15px; 
+                    margin-bottom: 20px; 
+                }
+                .info-item { 
+                    display: flex; 
+                    flex-direction: column; 
+                }
+                .info-label { 
+                    font-size: 12px; 
+                    font-weight: bold; 
+                    color: #6b7280; 
+                    text-transform: uppercase; 
+                }
+                .info-value { 
+                    font-size: 14px; 
+                    color: #1e293b; 
+                    margin-top: 2px; 
+                }
+                .emergency-section { 
+                    background: #fef2f2; 
+                    border: 1px solid #fecaca;
+                    padding: 15px; 
+                    border-radius: 8px; 
+                    margin-top: 20px; 
+                }
+                .emergency-title { 
+                    font-size: 14px; 
+                    font-weight: bold; 
+                    color: #dc2626; 
+                    margin-bottom: 10px; 
+                }
+                .card-footer { 
+                    background: #f8f9fa; 
+                    padding: 15px; 
+                    text-align: center; 
+                    font-size: 12px; 
+                    color: #6b7280; 
+                }
+                @media print {
+                    body { margin: 0; background: white; }
+                    .card-container { box-shadow: none; }
+                }
+            </style>
+        </head>
+        <body>
+            <div class="card-container">
+                <div class="card-header">
+                    <div class="hospital-name">BTL Charitale Hospital</div>
+                    <div class="card-subtitle">Patient Registration Card</div>
+                </div>
+                
+                <div class="card-body">
+                    <div class="patient-name">${patient.firstName} ${patient.lastName}</div>
+                    
+                    <div class="uhid-section">
+                        <div class="uhid">${patient.uhid}</div>
+                        <div style="font-size: 12px; color: #6b7280; margin-top: 5px;">Unique Hospital ID</div>
+                    </div>
+                    
+                    <div class="patient-info">
+                        <div class="info-item">
+                            <span class="info-label">Age/Gender</span>
+                            <span class="info-value">${patient.age || 'N/A'} years / ${patient.gender}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Blood Group</span>
+                            <span class="info-value">${patient.bloodGroup || 'Not specified'}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Mobile</span>
+                            <span class="info-value">${patient.mobile}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Registration Date</span>
+                            <span class="info-value">${formatDate(patient.registrationDate)}</span>
+                        </div>
+                    </div>
+                    
+                    ${patient.allergies ? `
+                    <div style="background: #fff7ed; border: 1px solid #fed7aa; padding: 10px; border-radius: 6px; margin: 15px 0;">
+                        <strong style="color: #ea580c; font-size: 12px;">ALLERGIES:</strong>
+                        <div style="color: #ea580c; font-size: 14px; margin-top: 5px;">${patient.allergies}</div>
+                    </div>
+                    ` : ''}
+                    
+                    ${patient.emergencyName ? `
+                    <div class="emergency-section">
+                        <div class="emergency-title">Emergency Contact</div>
+                        <div style="font-size: 14px;">
+                            <strong>${patient.emergencyName}</strong> (${patient.emergencyRelation || 'Contact'})
+                            <br>Phone: ${patient.emergencyPhone || 'Not provided'}
+                        </div>
+                    </div>
+                    ` : ''}
+                </div>
+                
+                <div class="card-footer">
+                    Generated on: ${new Date().toLocaleString()}
+                    <br>For any queries, contact hospital administration
+                </div>
+            </div>
+        </body>
+        </html>
+    `;
 }
 
 // Clear form
