@@ -239,12 +239,15 @@ class SidebarManager {
             mobileMenuBtn.addEventListener('click', () => this.toggleSidebar());
         }
 
-        // Set up section toggle functionality
-        window.toggleSection = (sectionName) => this.toggleSection(sectionName);
-
-        // Add click listeners to all section headers
+        // Remove any existing onclick handlers and add proper event listeners
         document.querySelectorAll('.nav-section-header').forEach(header => {
+            // Remove the inline onclick attribute to avoid conflicts
+            header.removeAttribute('onclick');
+            
+            // Add event listener for section toggling
             header.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
                 const section = header.closest('.nav-section');
                 if (section) {
                     const sectionName = section.dataset.section;
@@ -423,17 +426,20 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!window.sidebarManager) {
         window.sidebarManager = new SidebarManager();
     }
+    
+    // Set up the global toggleSection function after DOM is ready
+    // This ensures it's set after all scripts have loaded
+    setTimeout(() => {
+        window.toggleSection = function(sectionName) {
+            if (window.sidebarManager) {
+                window.sidebarManager.toggleSection(sectionName);
+            } else {
+                // Fallback if sidebarManager not ready yet
+                console.warn('SidebarManager not initialized yet');
+            }
+        };
+    }, 10);
 });
 
 // Export for manual initialization if needed
 window.SidebarManager = SidebarManager;
-
-// Global function for section toggling (backward compatibility)
-window.toggleSection = function(sectionName) {
-    if (window.sidebarManager) {
-        window.sidebarManager.toggleSection(sectionName);
-    } else {
-        // Fallback if sidebarManager not ready yet
-        console.warn('SidebarManager not initialized yet');
-    }
-};

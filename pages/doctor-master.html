@@ -9,121 +9,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <!-- Standardized Sidebar will be loaded here -->
-                        <span>OPD Management</span>
-                    </a>
-                </div>
-            </div>
-
-            <div class="nav-section">
-                <div class="nav-section-header" onclick="toggleSection('ipd')">
-                    <span><i class="fas fa-bed"></i> IPD</span>
-                    <i class="fas fa-chevron-down section-toggle"></i>
-                </div>
-                <div class="nav-section-content" id="ipd-section">
-                    <a href="ipd.html" class="nav-link">
-                        <i class="fas fa-procedures"></i>
-                        <span>IPD Management</span>
-                    </a>
-                </div>
-            </div>
-
-            <div class="nav-section">
-                <div class="nav-section-header" onclick="toggleSection('lab')">
-                    <span><i class="fas fa-flask"></i> Laboratory</span>
-                    <i class="fas fa-chevron-down section-toggle"></i>
-                </div>
-                <div class="nav-section-content" id="lab-section">
-                    <a href="lab.html" class="nav-link">
-                        <i class="fas fa-vial"></i>
-                        <span>Lab Tests</span>
-                    </a>
-                </div>
-            </div>
-
-            <div class="nav-section">
-                <div class="nav-section-header" onclick="toggleSection('masters')">
-                    <span><i class="fas fa-cogs"></i> Masters</span>
-                    <i class="fas fa-chevron-down section-toggle"></i>
-                </div>
-                <div class="nav-section-content" id="masters-section">
-                    <a href="patient-master.html" class="nav-link">
-                        <i class="fas fa-user-friends"></i>
-                        <span>Patient Master</span>
-                    </a>
-                    <a href="doctor-master.html" class="nav-link active">
-                        <i class="fas fa-user-md"></i>
-                        <span>Doctor Master</span>
-                    </a>
-                    <a href="department-master.html" class="nav-link">
-                        <i class="fas fa-building"></i>
-                        <span>Department Master</span>
-                    </a>
-                    <a href="medicine-master.html" class="nav-link">
-                        <i class="fas fa-pills"></i>
-                        <span>Medicine Master</span>
-                    </a>
-                    <a href="test-master.html" class="nav-link">
-                        <i class="fas fa-microscope"></i>
-                        <span>Test Master</span>
-                    </a>
-                </div>
-            </div>
-
-            <div class="nav-section">
-                <div class="nav-section-header" onclick="toggleSection('reports')">
-                    <span><i class="fas fa-chart-bar"></i> Reports</span>
-                    <i class="fas fa-chevron-down section-toggle"></i>
-                </div>
-                <div class="nav-section-content" id="reports-section">
-                    <a href="cashflow.html" class="nav-link">
-                        <i class="fas fa-rupee-sign"></i>
-                        <span>Cash Flow</span>
-                    </a>
-                </div>
-            </div>
-        </nav>
-    </div>
-                </a>
-            </div>
-
-            <div class="nav-section">
-                <h3>Masters</h3>
-                <a href="patient-master.html" class="nav-item" data-page="patient-master">
-                    <i class="fas fa-users"></i>
-                    <span>Patient Master</span>
-                </a>
-                <a href="doctor-master.html" class="nav-item active" data-page="doctor-master">
-                    <i class="fas fa-user-md"></i>
-                    <span>Doctor Master</span>
-                </a>
-            </div>
-
-            <div class="nav-section">
-                <h3>Finance</h3>
-                <a href="cashflow.html" class="nav-item" data-page="cashflow">
-                    <i class="fas fa-money-bill-wave"></i>
-                    <span>Cash Flow</span>
-                </a>
-                <a href="billing.html" class="nav-item" data-page="billing">
-                    <i class="fas fa-file-invoice"></i>
-                    <span>Billing</span>
-                </a>
-            </div>
-
-            <div class="nav-section">
-                <h3>Reports</h3>
-                <a href="reports.html" class="nav-item" data-page="reports">
-                    <i class="fas fa-chart-bar"></i>
-                    <span>Analytics</span>
-                </a>
-            </div>
-        </nav>
-        <button id="toggleSidebar" class="toggle-btn">
-            <i class="fas fa-bars"></i>
-        </button>
-    </div>
-
+    <!-- Standardized Sidebar will be loaded by sidebar-manager.js -->
+    
     <!-- Main Content Container -->
     <div class="main-content" id="mainContent">
         <div class="top-bar">
@@ -163,12 +50,12 @@
                 <div class="search-filter-section">
                     <div class="search-filter-row">
                         <div class="form-group">
-                            <label for="searchDoctor">Search</label>
-                            <input type="text" id="searchDoctor" placeholder="Search by Name, Registration No, Specialization">
+                            <label for="searchInput">Search</label>
+                            <input type="text" id="searchInput" placeholder="Search by Name, Registration No, Specialization">
                         </div>
                         <div class="form-group">
-                            <label for="departmentFilter">Department</label>
-                            <select id="departmentFilter">
+                            <label for="filterDepartment">Department</label>
+                            <select id="filterDepartment">
                                 <option value="">All Departments</option>
                                 <option value="Cardiology">Cardiology</option>
                                 <option value="Neurology">Neurology</option>
@@ -183,15 +70,21 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="statusFilter">Status</label>
-                            <select id="statusFilter">
+                            <label for="filterStatus">Status</label>
+                            <select id="filterStatus">
                                 <option value="">All Status</option>
                                 <option value="Active">Active</option>
                                 <option value="On Leave">On Leave</option>
                                 <option value="Inactive">Inactive</option>
                             </select>
                         </div>
-                        <button class="btn btn-secondary" onclick="applyDoctorFilters()">
+                        <div class="form-group">
+                            <label for="filterSpecialization">Specialization</label>
+                            <select id="filterSpecialization">
+                                <option value="">All Specializations</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-secondary" onclick="doctorMaster.applyFilters()">
                             <i class="fas fa-search"></i> Filter
                         </button>
                     </div>
@@ -264,6 +157,12 @@
                             <!-- Populated dynamically -->
                         </tbody>
                     </table>
+                </div>
+                <div id="paginationInfo" class="pagination-info" style="margin: 10px 0;"></div>
+                <div class="pagination-controls" style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
+                    <button id="prevPageBtn" class="btn btn-secondary">Previous</button>
+                    <span>Page <span id="currentPage">1</span> of <span id="totalPages">1</span></span>
+                    <button id="nextPageBtn" class="btn btn-secondary">Next</button>
                 </div>
             </div>
         </div>
@@ -346,6 +245,27 @@
                                 </select>
                             </div>
                         </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="fatherName">Father's Name</label>
+                                <input type="text" id="fatherName">
+                            </div>
+                            <div class="form-group">
+                                <label for="motherName">Mother's Name</label>
+                                <input type="text" id="motherName">
+                            </div>
+                            <div class="form-group">
+                                <label for="maritalStatus">Marital Status</label>
+                                <select id="maritalStatus">
+                                    <option value="">Select Status</option>
+                                    <option value="Single">Single</option>
+                                    <option value="Married">Married</option>
+                                    <option value="Divorced">Divorced</option>
+                                    <option value="Widowed">Widowed</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Professional Information -->
@@ -406,6 +326,82 @@
                             <label for="languages">Languages Known</label>
                             <input type="text" id="languages" placeholder="e.g., English, Hindi, Tamil">
                         </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="shift">Work Shift</label>
+                                <select id="shift">
+                                    <option value="">Select Shift</option>
+                                    <option value="Morning">Morning</option>
+                                    <option value="Evening">Evening</option>
+                                    <option value="Night">Night</option>
+                                    <option value="Flexible">Flexible</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="location">Work Location</label>
+                                <input type="text" id="location" placeholder="e.g., Main Hospital, Branch">
+                            </div>
+                            <div class="form-group">
+                                <label for="dateOfLeaving">Date of Leaving</label>
+                                <input type="date" id="dateOfLeaving">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Financial Information -->
+                    <div class="form-section">
+                        <h3>Financial Information</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="payscale">Pay Scale</label>
+                                <input type="text" id="payscale" placeholder="e.g., Grade A, Level 10">
+                            </div>
+                            <div class="form-group">
+                                <label for="basicSalary">Basic Salary (₹)</label>
+                                <input type="number" id="basicSalary" min="0">
+                            </div>
+                            <div class="form-group">
+                                <label for="contractType">Contract Type</label>
+                                <select id="contractType">
+                                    <option value="">Select Type</option>
+                                    <option value="Permanent">Permanent</option>
+                                    <option value="Contract">Contract</option>
+                                    <option value="Temporary">Temporary</option>
+                                    <option value="Consultant">Consultant</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="epfNo">EPF Number</label>
+                                <input type="text" id="epfNo">
+                            </div>
+                            <div class="form-group">
+                                <label for="accountTitle">Account Holder Name</label>
+                                <input type="text" id="accountTitle">
+                            </div>
+                            <div class="form-group">
+                                <label for="bankAccountNo">Bank Account Number</label>
+                                <input type="text" id="bankAccountNo">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="bankName">Bank Name</label>
+                                <input type="text" id="bankName">
+                            </div>
+                            <div class="form-group">
+                                <label for="bankBranch">Bank Branch</label>
+                                <input type="text" id="bankBranch">
+                            </div>
+                            <div class="form-group">
+                                <label for="ifscCode">IFSC Code</label>
+                                <input type="text" id="ifscCode" placeholder="e.g., SBIN0001234">
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Contact Information -->
@@ -427,8 +423,13 @@
                         </div>
                         
                         <div class="form-group">
-                            <label for="doctorAddress">Address</label>
+                            <label for="doctorAddress">Local Address</label>
                             <textarea id="doctorAddress" rows="3"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="permanentAddress">Permanent Address</label>
+                            <textarea id="permanentAddress" rows="3"></textarea>
                         </div>
                         
                         <div class="form-row">
@@ -524,6 +525,32 @@
                         </div>
                     </div>
 
+                    <!-- Social Media Information -->
+                    <div class="form-section">
+                        <h3>Social Media Links</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="facebook">Facebook Profile</label>
+                                <input type="url" id="facebook" placeholder="https://facebook.com/profile">
+                            </div>
+                            <div class="form-group">
+                                <label for="twitter">Twitter Profile</label>
+                                <input type="url" id="twitter" placeholder="https://twitter.com/profile">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="linkedin">LinkedIn Profile</label>
+                                <input type="url" id="linkedin" placeholder="https://linkedin.com/in/profile">
+                            </div>
+                            <div class="form-group">
+                                <label for="instagram">Instagram Profile</label>
+                                <input type="url" id="instagram" placeholder="https://instagram.com/profile">
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="form-actions">
                         <button type="submit" class="btn btn-primary">Save Doctor</button>
                         <button type="button" class="btn btn-secondary" onclick="closeDoctorModal()">Cancel</button>
@@ -554,5 +581,19 @@
     <script src="../js/sidebar-manager.js"></script>
     <script src="../js/main.js"></script>
     <script src="../js/doctor-master.js"></script>
+    <script>
+    // Ensure showAddDoctorModal is globally available and works
+    if (typeof window.showAddDoctorModal !== 'function') {
+        window.showAddDoctorModal = function() {
+            if (window.doctorMaster && typeof window.doctorMaster.showAddDoctorModal === 'function') {
+                window.doctorMaster.showAddDoctorModal();
+            } else {
+                // fallback: show modal directly if doctorMaster not ready
+                var modal = document.getElementById('doctorModal');
+                if (modal) modal.style.display = 'block';
+            }
+        };
+    }
+    </script>
 </body>
 </html>

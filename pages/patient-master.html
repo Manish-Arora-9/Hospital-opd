@@ -8,8 +8,8 @@
     <link rel="stylesheet" href="../css/sidebar.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<<body>
-    <!-- Sidebar will be loaded by sidebar-manager.js -->
+<body>
+    <!-- Standardized Sidebar will be loaded by sidebar-manager.js -->
 
     <!-- Main Content Container -->
     <div class="main-content" id="mainContent">
@@ -35,7 +35,7 @@
                 <div class="card-header">
                     <h2 class="card-title">Search Patients</h2>
                     <div class="header-actions">
-                        <button class="btn btn-primary" onclick="showAddPatientModal()">
+                        <button class="btn btn-primary" onclick="window.location.href='registration.html'">
                             <i class="fas fa-plus"></i> Add Patient
                         </button>
                         <button class="btn btn-info" onclick="printPatientList()">
@@ -50,12 +50,12 @@
                 <div class="search-filter-section">
                     <div class="search-filter-row">
                         <div class="form-group">
-                            <label for="searchPatient">Search</label>
-                            <input type="text" id="searchPatient" placeholder="Search by Name, UHID, Phone">
+                            <label for="searchInput">Search</label>
+                            <input type="text" id="searchInput" placeholder="Search by Name, UHID, Phone">
                         </div>
                         <div class="form-group">
-                            <label for="genderFilter">Gender</label>
-                            <select id="genderFilter">
+                            <label for="filterGender">Gender</label>
+                            <select id="filterGender">
                                 <option value="">All Genders</option>
                                 <option value="Male">Male</option>
                                 <option value="Female">Female</option>
@@ -63,8 +63,8 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="ageGroupFilter">Age Group</label>
-                            <select id="ageGroupFilter">
+                            <label for="filterAgeRange">Age Group</label>
+                            <select id="filterAgeRange">
                                 <option value="">All Ages</option>
                                 <option value="0-18">0-18 years</option>
                                 <option value="19-35">19-35 years</option>
@@ -72,7 +72,21 @@
                                 <option value="60+">60+ years</option>
                             </select>
                         </div>
-                        <button class="btn btn-secondary" onclick="applyFilters()">
+                        <div class="form-group">
+                            <label for="filterBloodGroup">Blood Group</label>
+                            <select id="filterBloodGroup">
+                                <option value="">All Blood Groups</option>
+                                <option value="A+">A+</option>
+                                <option value="A-">A-</option>
+                                <option value="B+">B+</option>
+                                <option value="B-">B-</option>
+                                <option value="AB+">AB+</option>
+                                <option value="AB-">AB-</option>
+                                <option value="O+">O+</option>
+                                <option value="O-">O-</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-secondary" onclick="patientMaster.applyFilters()">
                             <i class="fas fa-search"></i> Filter
                         </button>
                     </div>
@@ -104,7 +118,7 @@
                                 <th>Actions</th>
                             </tr>
                         </thead>
-                        <tbody id="patientsList">
+                        <tbody id="patientsTableBody">
                             <!-- Populated dynamically -->
                         </tbody>
                     </table>

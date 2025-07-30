@@ -1,4 +1,4 @@
-// Doctor Master Management System
+
 class DoctorMaster {
     constructor() {
         this.doctors = this.loadDoctors();
@@ -226,12 +226,14 @@ class DoctorMaster {
     addDoctor(doctorData) {
         const doctor = {
             ...doctorData,
-            doctorId: this.generateDoctorId(),
-            joinDate: new Date().toISOString().split('T')[0],
-            status: 'Active',
+            doctorId: doctorData.employeeId || this.generateDoctorCode(),
+            fullName: `${doctorData.name} ${doctorData.surname}`,
+            joinDate: doctorData.dateOfJoining || new Date().toISOString().split('T')[0],
+            status: doctorData.status || 'Active',
             totalPatients: 0,
             totalRevenue: 0,
-            schedule: this.generateDefaultSchedule()
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
         };
 
         this.doctors.unshift(doctor);
@@ -331,7 +333,7 @@ class DoctorMaster {
         const endIndex = startIndex + this.doctorsPerPage;
         const paginatedDoctors = this.filteredDoctors.slice(startIndex, endIndex);
 
-        const tbody = document.getElementById('doctorsTableBody');
+        const tbody = document.getElementById('doctorsList');
         if (!tbody) return;
 
         if (paginatedDoctors.length === 0) {
@@ -417,8 +419,8 @@ class DoctorMaster {
         
         document.getElementById('totalDoctors').textContent = stats.total;
         document.getElementById('activeDoctors').textContent = stats.active;
-        document.getElementById('departments').textContent = stats.departments;
-        document.getElementById('avgConsultationFee').textContent = `₹${stats.avgFee}`;
+        document.getElementById('totalDepartments').textContent = stats.departments;
+        document.getElementById('todayConsultations').textContent = stats.todayConsultations;
     }
 
     calculateStats() {
@@ -427,11 +429,15 @@ class DoctorMaster {
         const avgFee = activeDoctors.length > 0 ? 
             Math.round(activeDoctors.reduce((sum, d) => sum + (d.consultationFee || 0), 0) / activeDoctors.length) : 0;
         
+        // Calculate today's consultations (mock data for now)
+        const todayConsultations = Math.floor(Math.random() * 20) + 5; // Random number for demo
+        
         return {
             total: this.doctors.length,
             active: activeDoctors.length,
             departments: departments.length,
-            avgFee
+            avgFee,
+            todayConsultations
         };
     }
 
@@ -456,8 +462,76 @@ class DoctorMaster {
     handleFormSubmit(e) {
         e.preventDefault();
         
-        const formData = new FormData(e.target);
-        const doctorData = Object.fromEntries(formData);
+        // Collect data from all form fields
+        const doctorData = {
+            // Basic employee information
+            employeeId: document.getElementById('doctorCode')?.value,
+            name: document.getElementById('doctorFirstName')?.value,
+            surname: document.getElementById('doctorLastName')?.value,
+            fatherName: document.getElementById('fatherName')?.value,
+            motherName: document.getElementById('motherName')?.value,
+            gender: document.getElementById('doctorGender')?.value,
+            dob: document.getElementById('doctorDob')?.value,
+            maritalStatus: document.getElementById('maritalStatus')?.value,
+            
+            // Contact information
+            contactNo: document.getElementById('doctorMobile')?.value,
+            emergencyContactNo: document.getElementById('emergencyContactPhone')?.value,
+            email: document.getElementById('doctorEmail')?.value,
+            localAddress: document.getElementById('doctorAddress')?.value,
+            permanentAddress: document.getElementById('permanentAddress')?.value,
+            
+            // Professional information
+            qualification: document.getElementById('qualification')?.value,
+            workExp: document.getElementById('experience')?.value,
+            department: document.getElementById('department')?.value,
+            specialization: document.getElementById('specialization')?.value,
+            designation: document.getElementById('designation')?.value,
+            dateOfJoining: document.getElementById('joiningDate')?.value,
+            dateOfLeaving: document.getElementById('dateOfLeaving')?.value,
+            
+            // Financial information
+            payscale: document.getElementById('payscale')?.value,
+            basicSalary: document.getElementById('basicSalary')?.value,
+            epfNo: document.getElementById('epfNo')?.value,
+            contractType: document.getElementById('contractType')?.value,
+            accountTitle: document.getElementById('accountTitle')?.value,
+            bankAccountNo: document.getElementById('bankAccountNo')?.value,
+            bankName: document.getElementById('bankName')?.value,
+            ifscCode: document.getElementById('ifscCode')?.value,
+            bankBranch: document.getElementById('bankBranch')?.value,
+            
+            // Work details
+            shift: document.getElementById('shift')?.value,
+            location: document.getElementById('location')?.value,
+            roomNumber: document.getElementById('roomNumber')?.value,
+            
+            // Social media
+            facebook: document.getElementById('facebook')?.value,
+            twitter: document.getElementById('twitter')?.value,
+            linkedin: document.getElementById('linkedin')?.value,
+            instagram: document.getElementById('instagram')?.value,
+            
+            // Additional information
+            status: document.getElementById('doctorStatus')?.value,
+            notes: document.getElementById('notes')?.value,
+            
+            // Medical specific
+            registrationNo: document.getElementById('registrationNo')?.value,
+            consultationFee: document.getElementById('consultationFee')?.value,
+            languages: document.getElementById('languages')?.value,
+            bloodGroup: document.getElementById('bloodGroup')?.value,
+            
+            // Schedule information
+            consultationDays: this.getSelectedDays(),
+            consultationStartTime: document.getElementById('consultationStartTime')?.value,
+            consultationEndTime: document.getElementById('consultationEndTime')?.value,
+            avgConsultationTime: document.getElementById('avgConsultationTime')?.value,
+            
+            // Emergency contact details
+            emergencyContactName: document.getElementById('emergencyContactName')?.value,
+            emergencyContactRelation: document.getElementById('emergencyContactRelation')?.value
+        };
         
         // Validation
         if (!this.validateForm(doctorData)) {
@@ -466,14 +540,26 @@ class DoctorMaster {
 
         if (this.currentDoctor) {
             // Update existing doctor
-            this.updateDoctor(this.currentDoctor.doctorId, doctorData);
+            this.updateDoctor(this.currentDoctor.employeeId, doctorData);
         } else {
             // Add new doctor
             this.addDoctor(doctorData);
         }
 
-        this.clearForm();
-        this.hideModal('doctorModal');
+        this.resetForm();
+        this.closeDoctorModal();
+    }
+
+    // Helper method to get selected consultation days
+    getSelectedDays() {
+        const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+        const selectedDays = [];
+        checkboxes.forEach(checkbox => {
+            if (checkbox.checked) {
+                selectedDays.push(checkbox.value);
+            }
+        });
+        return selectedDays;
     }
 
     handleScheduleSubmit(e) {
@@ -503,18 +589,29 @@ class DoctorMaster {
     }
 
     validateForm(data) {
-        const required = ['name', 'specialization', 'department', 'qualification', 'phone', 'consultationFee'];
+        const required = [
+            { field: 'name', label: 'First Name' },
+            { field: 'surname', label: 'Last Name' },
+            { field: 'gender', label: 'Gender' },
+            { field: 'contactNo', label: 'Mobile Number' },
+            { field: 'email', label: 'Email' },
+            { field: 'qualification', label: 'Qualification' },
+            { field: 'specialization', label: 'Specialization' },
+            { field: 'department', label: 'Department' },
+            { field: 'registrationNo', label: 'Medical Registration Number' },
+            { field: 'dateOfJoining', label: 'Joining Date' }
+        ];
         
-        for (let field of required) {
-            if (!data[field] || data[field].trim() === '') {
-                this.showAlert(`${field.charAt(0).toUpperCase() + field.slice(1)} is required`, 'error');
+        for (let item of required) {
+            if (!data[item.field] || data[item.field].trim() === '') {
+                this.showAlert(`${item.label} is required`, 'error');
                 return false;
             }
         }
 
         // Phone validation
-        if (!/^\d{10}$/.test(data.phone)) {
-            this.showAlert('Please enter a valid 10-digit phone number', 'error');
+        if (!/^\d{10}$/.test(data.contactNo)) {
+            this.showAlert('Please enter a valid 10-digit mobile number', 'error');
             return false;
         }
 
@@ -524,9 +621,21 @@ class DoctorMaster {
             return false;
         }
 
-        // Consultation fee validation
-        if (isNaN(data.consultationFee) || data.consultationFee <= 0) {
-            this.showAlert('Please enter a valid consultation fee', 'error');
+        // Emergency contact validation (if provided)
+        if (data.emergencyContactNo && !/^\d{10}$/.test(data.emergencyContactNo)) {
+            this.showAlert('Please enter a valid 10-digit emergency contact number', 'error');
+            return false;
+        }
+
+        // Bank account validation (if provided)
+        if (data.bankAccountNo && data.bankAccountNo.length < 8) {
+            this.showAlert('Please enter a valid bank account number', 'error');
+            return false;
+        }
+
+        // IFSC code validation (if provided)
+        if (data.ifscCode && !/^[A-Z]{4}0[A-Z0-9]{6}$/.test(data.ifscCode)) {
+            this.showAlert('Please enter a valid IFSC code (e.g., SBIN0001234)', 'error');
             return false;
         }
 
@@ -535,8 +644,8 @@ class DoctorMaster {
 
     showAddDoctorModal() {
         this.currentDoctor = null;
-        this.clearForm();
-        document.getElementById('modalTitle').textContent = 'Add New Doctor';
+        this.resetForm();
+        document.getElementById('doctorModalTitle').textContent = 'Add New Doctor';
         document.getElementById('doctorModal').style.display = 'block';
     }
 
@@ -546,7 +655,7 @@ class DoctorMaster {
 
         this.currentDoctor = doctor;
         this.populateForm(doctor);
-        document.getElementById('modalTitle').textContent = 'Edit Doctor';
+        document.getElementById('doctorModalTitle').textContent = 'Edit Doctor';
         document.getElementById('doctorModal').style.display = 'block';
     }
 
@@ -555,7 +664,7 @@ class DoctorMaster {
         if (!doctor) return;
 
         this.populateViewModal(doctor);
-        document.getElementById('viewModal').style.display = 'block';
+        document.getElementById('doctorViewModal').style.display = 'block';
     }
 
     manageSchedule(doctorId) {
@@ -595,7 +704,7 @@ class DoctorMaster {
     }
 
     populateViewModal(doctor) {
-        const viewContent = document.getElementById('viewContent');
+        const viewContent = document.getElementById('doctorDetailsContent');
         if (!viewContent) return;
 
         const patientStats = this.getDoctorPatientStats(doctor.doctorId);
@@ -944,9 +1053,222 @@ class DoctorMaster {
     getDoctorsByDepartment(department) {
         return this.doctors.filter(d => d.department === department && d.status === 'Active');
     }
+
+    // Generate unique doctor code
+    generateDoctorCode() {
+        const currentYear = new Date().getFullYear().toString().slice(-2);
+        const existingCodes = this.doctors.map(d => d.doctorCode).filter(code => code.startsWith(`DR${currentYear}`));
+        let maxNumber = 0;
+        
+        existingCodes.forEach(code => {
+            const numberPart = parseInt(code.slice(-4));
+            if (numberPart > maxNumber) {
+                maxNumber = numberPart;
+            }
+        });
+        
+        const newNumber = (maxNumber + 1).toString().padStart(4, '0');
+        const newCode = `DR${currentYear}${newNumber}`;
+        
+        const doctorCodeField = document.getElementById('doctorCode');
+        if (doctorCodeField) {
+            doctorCodeField.value = newCode;
+        }
+        
+        return newCode;
+    }
+
+    // Reset form to initial state
+    resetForm() {
+        const form = document.getElementById('doctorForm');
+        if (form) {
+            form.reset();
+        }
+        this.currentDoctor = null;
+        
+        // Reset modal title
+        const modalTitle = document.getElementById('doctorModalTitle');
+        if (modalTitle) {
+            modalTitle.textContent = 'Add New Doctor';
+        }
+        
+        // Generate new doctor code
+        this.generateDoctorCode();
+    }
+
+    // Close doctor modal
+    closeDoctorModal() {
+        const modal = document.getElementById('doctorModal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+        this.resetForm();
+    }
+
+    // Export doctor data to Excel
+    exportToExcel() {
+        const data = this.filteredDoctors.map(doctor => ({
+            'Doctor ID': doctor.doctorCode,
+            'Registration No': doctor.registrationNo,
+            'Name': doctor.name,
+            'Department': doctor.department,
+            'Specialization': doctor.specialization,
+            'Qualification': doctor.qualification,
+            'Experience': doctor.experience + ' years',
+            'Mobile': doctor.mobile,
+            'Email': doctor.email,
+            'Status': doctor.status,
+            'Joining Date': doctor.joiningDate
+        }));
+
+        // Create CSV content
+        const headers = Object.keys(data[0]);
+        const csvContent = [
+            headers.join(','),
+            ...data.map(row => headers.map(header => `"${row[header] || ''}"`).join(','))
+        ].join('\n');
+
+        // Download CSV file
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `doctors_export_${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+
+        this.showAlert('Doctor data exported successfully!', 'success');
+    }
+
+    // Print doctor details
+    printDoctorDetails() {
+        if (!this.currentDoctor) {
+            this.showAlert('No doctor selected for printing', 'error');
+            return;
+        }
+
+        const printWindow = window.open('', '_blank');
+        const doctor = this.currentDoctor;
+        
+        printWindow.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Doctor Details - ${doctor.name}</title>
+                <style>
+                    body { font-family: Arial, sans-serif; margin: 20px; }
+                    .header { text-align: center; margin-bottom: 30px; }
+                    .details { margin-bottom: 20px; }
+                    .section { margin-bottom: 25px; }
+                    .section h3 { color: #2563eb; border-bottom: 2px solid #e5e7eb; padding-bottom: 5px; }
+                    .row { margin-bottom: 10px; }
+                    .label { font-weight: bold; display: inline-block; width: 150px; }
+                    .value { display: inline-block; }
+                    @media print { 
+                        body { margin: 0; }
+                        .no-print { display: none; }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <h1>BTL Charitale Hospital</h1>
+                    <h2>Doctor Details</h2>
+                    <p>Generated on: ${new Date().toLocaleString()}</p>
+                </div>
+                
+                <div class="section">
+                    <h3>Personal Information</h3>
+                    <div class="row"><span class="label">Doctor ID:</span> <span class="value">${doctor.doctorCode}</span></div>
+                    <div class="row"><span class="label">Registration No:</span> <span class="value">${doctor.registrationNo}</span></div>
+                    <div class="row"><span class="label">Name:</span> <span class="value">${doctor.name}</span></div>
+                    <div class="row"><span class="label">Gender:</span> <span class="value">${doctor.gender}</span></div>
+                    <div class="row"><span class="label">Date of Birth:</span> <span class="value">${doctor.dob || 'N/A'}</span></div>
+                    <div class="row"><span class="label">Blood Group:</span> <span class="value">${doctor.bloodGroup || 'N/A'}</span></div>
+                </div>
+                
+                <div class="section">
+                    <h3>Professional Information</h3>
+                    <div class="row"><span class="label">Department:</span> <span class="value">${doctor.department}</span></div>
+                    <div class="row"><span class="label">Specialization:</span> <span class="value">${doctor.specialization}</span></div>
+                    <div class="row"><span class="label">Designation:</span> <span class="value">${doctor.designation || 'N/A'}</span></div>
+                    <div class="row"><span class="label">Qualification:</span> <span class="value">${doctor.qualification}</span></div>
+                    <div class="row"><span class="label">Experience:</span> <span class="value">${doctor.experience} years</span></div>
+                    <div class="row"><span class="label">Consultation Fee:</span> <span class="value">₹${doctor.consultationFee || 'N/A'}</span></div>
+                    <div class="row"><span class="label">Joining Date:</span> <span class="value">${doctor.joiningDate}</span></div>
+                </div>
+                
+                <div class="section">
+                    <h3>Contact Information</h3>
+                    <div class="row"><span class="label">Mobile:</span> <span class="value">${doctor.mobile}</span></div>
+                    <div class="row"><span class="label">Email:</span> <span class="value">${doctor.email}</span></div>
+                    <div class="row"><span class="label">Address:</span> <span class="value">${doctor.address || 'N/A'}</span></div>
+                    <div class="row"><span class="label">City:</span> <span class="value">${doctor.city || 'N/A'}</span></div>
+                    <div class="row"><span class="label">State:</span> <span class="value">${doctor.state || 'N/A'}</span></div>
+                    <div class="row"><span class="label">Pincode:</span> <span class="value">${doctor.pincode || 'N/A'}</span></div>
+                </div>
+                
+                <div class="section">
+                    <h3>Schedule Information</h3>
+                    <div class="row"><span class="label">Consultation Days:</span> <span class="value">${doctor.consultationDays ? doctor.consultationDays.join(', ') : 'N/A'}</span></div>
+                    <div class="row"><span class="label">Consultation Time:</span> <span class="value">${doctor.consultationStartTime || 'N/A'} - ${doctor.consultationEndTime || 'N/A'}</span></div>
+                    <div class="row"><span class="label">Room Number:</span> <span class="value">${doctor.roomNumber || 'N/A'}</span></div>
+                </div>
+                
+                <div class="section">
+                    <h3>Status</h3>
+                    <div class="row"><span class="label">Current Status:</span> <span class="value">${doctor.status}</span></div>
+                    <div class="row"><span class="label">Notes:</span> <span class="value">${doctor.notes || 'N/A'}</span></div>
+                </div>
+            </body>
+            </html>
+        `);
+        
+        printWindow.document.close();
+        printWindow.print();
+    }
 }
 
 // Initialize Doctor Master when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     window.doctorMaster = new DoctorMaster();
 });
+
+// Global functions for HTML onclick handlers
+function showAddDoctorModal() {
+    if (window.doctorMaster) {
+        window.doctorMaster.showAddDoctorModal();
+    }
+}
+
+function printDoctorList() {
+    if (window.doctorMaster) {
+        window.doctorMaster.printDoctorList();
+    }
+}
+
+function exportDoctorData() {
+    if (window.doctorMaster) {
+        window.doctorMaster.exportToExcel();
+    }
+}
+
+function applyDoctorFilters() {
+    if (window.doctorMaster) {
+        window.doctorMaster.applyFilters();
+    }
+}
+
+function closeDoctorModal() {
+    if (window.doctorMaster) {
+        window.doctorMaster.closeDoctorModal();
+    }
+}
+
+function printDoctorDetails() {
+    if (window.doctorMaster) {
+        window.doctorMaster.printDoctorDetails();
+    }
+}

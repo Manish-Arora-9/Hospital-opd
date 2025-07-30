@@ -388,7 +388,7 @@ class PatientMaster {
 
     showAddPatientModal() {
         this.currentPatient = null;
-        this.clearForm();
+        this.resetForm();
         document.getElementById('modalTitle').textContent = 'Add New Patient';
         document.getElementById('patientModal').style.display = 'block';
     }
@@ -704,9 +704,223 @@ class PatientMaster {
             }
         }, 5000);
     }
+
+    // Close patient modal
+    closePatientModal() {
+        const modal = document.getElementById('patientModal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+        this.resetForm();
+    }
+
+    // Reset form to initial state
+    resetForm() {
+        const form = document.getElementById('patientForm');
+        if (form) {
+            form.reset();
+        }
+        this.currentPatient = null;
+        
+        // Reset modal title
+        const modalTitle = document.getElementById('modalTitle');
+        if (modalTitle) {
+            modalTitle.textContent = 'Add New Patient';
+        }
+        
+        // Generate new UHID
+        this.generateUHID();
+    }
+
+    // Generate unique UHID
+    generateUHID() {
+        const currentYear = new Date().getFullYear().toString().slice(-2);
+        const existingUHIDs = this.patients.map(p => p.uhid).filter(uhid => uhid.startsWith(`P${currentYear}`));
+        let maxNumber = 0;
+        
+        existingUHIDs.forEach(uhid => {
+            const numberPart = parseInt(uhid.slice(-6));
+            if (numberPart > maxNumber) {
+                maxNumber = numberPart;
+            }
+        });
+        
+        const newNumber = (maxNumber + 1).toString().padStart(6, '0');
+        const newUHID = `P${currentYear}${newNumber}`;
+        
+        const uhidField = document.getElementById('uhid');
+        if (uhidField) {
+            uhidField.value = newUHID;
+        }
+        
+        return newUHID;
+    }
+
+    // Export patient data to Excel
+    exportToExcel() {
+        const data = this.filteredPatients.map(patient => ({
+            'UHID': patient.uhid,
+            'Name': patient.name,
+            'Age': patient.age || this.calculateAge(patient.dob),
+            'Gender': patient.gender,
+            'Mobile': patient.mobile,
+            'Email': patient.email || '',
+            'Blood Group': patient.bloodGroup || '',
+            'Address': patient.address || '',
+            'City': patient.city || '',
+            'Registration Date': patient.registrationDate,
+            'Emergency Contact': patient.emergencyName || '',
+            'Emergency Phone': patient.emergencyPhone || ''
+        }));
+
+        // Create CSV content
+        const headers = Object.keys(data[0]);
+        const csvContent = [
+            headers.join(','),
+            ...data.map(row => headers.map(header => `"${row[header] || ''}"`).join(','))
+        ].join('\n');
+
+        // Download CSV file
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `patients_export_${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+
+        this.showMessage('Patient data exported successfully!', 'success');
+    }
+
+    // Print patient details
+    printPatientDetails() {
+        if (!this.currentPatient) {
+            this.showMessage('No patient selected for printing', 'error');
+            return;
+        }
+
+        const printWindow = window.open('', '_blank');
+        const patient = this.currentPatient;
+        
+        printWindow.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Patient Details - ${patient.name}</title>
+                <style>
+                    body { font-family: Arial, sans-serif; margin: 20px; }
+                    .header { text-align: center; margin-bottom: 30px; }
+                    .details { margin-bottom: 20px; }
+                    .section { margin-bottom: 25px; }
+                    .section h3 { color: #2563eb; border-bottom: 2px solid #e5e7eb; padding-bottom: 5px; }
+                    .row { margin-bottom: 10px; }
+                    .label { font-weight: bold; display: inline-block; width: 150px; }
+                    .value { display: inline-block; }
+                    @media print { 
+                        body { margin: 0; }
+                        .no-print { display: none; }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <h1>BTL Charitale Hospital</h1>
+                    <h2>Patient Details</h2>
+                    <p>Generated on: ${new Date().toLocaleString()}</p>
+                </div>
+                
+                <div class="section">
+                    <h3>Personal Information</h3>
+                    <div class="row"><span class="label">UHID:</span> <span class="value">${patient.uhid}</span></div>
+                    <div class="row"><span class="label">Name:</span> <span class="value">${patient.name}</span></div>
+                    <div class="row"><span class="label">Date of Birth:</span> <span class="value">${patient.dob}</span></div>
+                    <div class="row"><span class="label">Age:</span> <span class="value">${patient.age || this.calculateAge(patient.dob)} years</span></div>
+                    <div class="row"><span class="label">Gender:</span> <span class="value">${patient.gender}</span></div>
+                    <div class="row"><span class="label">Blood Group:</span> <span class="value">${patient.bloodGroup || 'N/A'}</span></div>
+                    <div class="row"><span class="label">Registration Date:</span> <span class="value">${patient.registrationDate}</span></div>
+                </div>
+                
+                <div class="section">
+                    <h3>Contact Information</h3>
+                    <div class="row"><span class="label">Mobile:</span> <span class="value">${patient.mobile}</span></div>
+                    <div class="row"><span class="label">Email:</span> <span class="value">${patient.email || 'N/A'}</span></div>
+                    <div class="row"><span class="label">Address:</span> <span class="value">${patient.address || 'N/A'}</span></div>
+                    <div class="row"><span class="label">City:</span> <span class="value">${patient.city || 'N/A'}</span></div>
+                    <div class="row"><span class="label">State:</span> <span class="value">${patient.state || 'N/A'}</span></div>
+                    <div class="row"><span class="label">Pincode:</span> <span class="value">${patient.pincode || 'N/A'}</span></div>
+                </div>
+                
+                <div class="section">
+                    <h3>Medical Information</h3>
+                    <div class="row"><span class="label">Allergies:</span> <span class="value">${patient.allergies || 'None known'}</span></div>
+                    <div class="row"><span class="label">Chronic Diseases:</span> <span class="value">${patient.chronicDiseases || 'None known'}</span></div>
+                    <div class="row"><span class="label">Current Medications:</span> <span class="value">${patient.medications || 'None'}</span></div>
+                </div>
+                
+                <div class="section">
+                    <h3>Emergency Contact</h3>
+                    <div class="row"><span class="label">Name:</span> <span class="value">${patient.emergencyName || 'N/A'}</span></div>
+                    <div class="row"><span class="label">Relationship:</span> <span class="value">${patient.emergencyRelation || 'N/A'}</span></div>
+                    <div class="row"><span class="label">Phone:</span> <span class="value">${patient.emergencyPhone || 'N/A'}</span></div>
+                </div>
+            </body>
+            </html>
+        `);
+        
+        printWindow.document.close();
+        printWindow.print();
+    }
+
+    // Calculate age from date of birth
+    calculateAge(dob) {
+        if (!dob) return 0;
+        const birthDate = new Date(dob);
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+        
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+        
+        return age;
+    }
 }
 
 // Initialize Patient Master when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     window.patientMaster = new PatientMaster();
 });
+
+// Global functions for HTML onclick handlers
+function showAddPatientModal() {
+    if (window.patientMaster) {
+        window.patientMaster.showAddPatientModal();
+    }
+}
+
+function printPatientList() {
+    if (window.patientMaster) {
+        window.patientMaster.printPatientList();
+    }
+}
+
+function exportPatientData() {
+    if (window.patientMaster) {
+        window.patientMaster.exportToExcel();
+    }
+}
+
+function closePatientModal() {
+    if (window.patientMaster) {
+        window.patientMaster.closePatientModal();
+    }
+}
+
+function printPatientDetails() {
+    if (window.patientMaster) {
+        window.patientMaster.printPatientDetails();
+    }
+}

@@ -36,8 +36,7 @@ class HMSDataStore {
     loadIntegrationScripts() {
         const scripts = [
             '/js/hospital-integration.js',
-            '/js/patient-master.js',
-            '/js/doctor-master.js',
+            
             '/js/analytics.js'
         ];
 
@@ -196,25 +195,35 @@ function updateDateTime() {
     }
 }
 
-// Sidebar section toggle functionality
-function toggleSection(sectionId) {
-    const section = document.querySelector(`[data-section="${sectionId}"]`);
-    if (section) {
-        section.classList.toggle('collapsed');
-        // Save state to localStorage
-        const collapsedSections = JSON.parse(localStorage.getItem('collapsedSections') || '[]');
-        if (section.classList.contains('collapsed')) {
-            if (!collapsedSections.includes(sectionId)) {
-                collapsedSections.push(sectionId);
-            }
-        } else {
-            const index = collapsedSections.indexOf(sectionId);
-            if (index > -1) {
-                collapsedSections.splice(index, 1);
-            }
+// Sidebar section toggle functionality (legacy - only used if SidebarManager not available)
+// Only define this function if window.toggleSection doesn't already exist
+if (!window.toggleSection) {
+    window.toggleSection = function(sectionId) {
+        // Check if SidebarManager is available and use it instead
+        if (window.sidebarManager && window.sidebarManager.toggleSection) {
+            window.sidebarManager.toggleSection(sectionId);
+            return;
         }
-        localStorage.setItem('collapsedSections', JSON.stringify(collapsedSections));
-    }
+        
+        // Legacy fallback for old sidebar implementation
+        const section = document.querySelector(`[data-section="${sectionId}"]`);
+        if (section) {
+            section.classList.toggle('collapsed');
+            // Save state to localStorage
+            const collapsedSections = JSON.parse(localStorage.getItem('collapsedSections') || '[]');
+            if (section.classList.contains('collapsed')) {
+                if (!collapsedSections.includes(sectionId)) {
+                    collapsedSections.push(sectionId);
+                }
+            } else {
+                const index = collapsedSections.indexOf(sectionId);
+                if (index > -1) {
+                    collapsedSections.splice(index, 1);
+                }
+            }
+            localStorage.setItem('collapsedSections', JSON.stringify(collapsedSections));
+        }
+    };
 }
 
 // Initialize sidebar sections state
