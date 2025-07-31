@@ -129,26 +129,28 @@ function validateForm() {
 }
 
 // Save patient data
-function savePatient() {
+async function savePatient() {
     const formData = {
-        registrationDate: document.getElementById('registrationDate').value,
-        firstName: document.getElementById('firstName').value,
-        lastName: document.getElementById('lastName').value,
+        first_name: document.getElementById('firstName').value,
+        last_name: document.getElementById('lastName').value,
         dob: document.getElementById('dob').value,
         gender: document.getElementById('gender').value,
-        bloodGroup: document.getElementById('bloodGroup').value,
-        mobile: document.getElementById('mobile').value,
-        email: document.getElementById('email').value,
+        contact_info: {
+            mobile: document.getElementById('mobile').value,
+            email: document.getElementById('email').value
+        },
         address: document.getElementById('address').value,
+        registration_date: document.getElementById('registrationDate').value,
+        blood_group: document.getElementById('bloodGroup').value,
         city: document.getElementById('city').value,
         state: document.getElementById('state').value,
         pincode: document.getElementById('pincode').value,
         allergies: document.getElementById('allergies').value,
-        chronicDiseases: document.getElementById('chronicDiseases').value,
+        chronic_diseases: document.getElementById('chronicDiseases').value,
         medications: document.getElementById('medications').value,
-        emergencyName: document.getElementById('emergencyName').value,
-        emergencyRelation: document.getElementById('emergencyRelation').value,
-        emergencyPhone: document.getElementById('emergencyPhone').value
+        emergency_name: document.getElementById('emergencyName').value,
+        emergency_relation: document.getElementById('emergencyRelation').value,
+        emergency_phone: document.getElementById('emergencyPhone').value
     };
 
     // Calculate age if DOB is provided
@@ -157,7 +159,6 @@ function savePatient() {
         const birthDate = new Date(formData.dob);
         let age = today.getFullYear() - birthDate.getFullYear();
         const monthDiff = today.getMonth() - birthDate.getMonth();
-        
         if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
             age--;
         }
@@ -165,36 +166,21 @@ function savePatient() {
     }
 
     try {
-        // Check if HMSDataStore is available
-        if (window.hmsData) {
-            // Use the integrated data store
-            const savedPatient = window.hmsData.addPatient(formData);
-            showNotification(`Patient registered successfully! UHID: ${savedPatient.uhid}`, 'success');
-            
-            // Auto-print option
-            setTimeout(() => {
-                if (confirm('Would you like to print the patient registration card?')) {
-                    printPatientCard(savedPatient);
-                }
-            }, 1000);
-        } else {
-            // Fallback to old localStorage method
-            formData.uhid = document.getElementById('uhid').value;
-            formData.createdAt = new Date().toISOString();
-            formData.lastUpdated = new Date().toISOString();
-            
-            const patients = JSON.parse(localStorage.getItem('patients') || '[]');
-            patients.push(formData);
-            localStorage.setItem('patients', JSON.stringify(patients));
-            
-            showSuccess('Patient registered successfully!');
-        }
-        
-        clearForm();
-        if (!window.hmsData) {
+        const response = await fetch('http://localhost:8000/patients/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            showNotification(`Patient registered successfully! ID: ${result.patient_id}`, 'success');
+            clearForm();
             generateNewUHID();
+        } else {
+            const error = await response.json();
+            showNotification('Error registering patient: ' + error.detail, 'error');
         }
-        
     } catch (error) {
         console.error('Registration error:', error);
         showNotification('Error registering patient. Please try again.', 'error');
