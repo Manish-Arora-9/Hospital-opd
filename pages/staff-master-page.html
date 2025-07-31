@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Master - Hospital Management System</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/sidebar.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Sidebar will be loaded by sidebar-manager.js -->
+
+    <!-- Main Content Container -->
+    <div class="main-content" id="mainContent">
+        <div class="top-bar">
+            <div class="mobile-menu-btn" id="mobileMenuBtn">
+                <i class="fas fa-bars"></i>
+            </div>
+            <div class="page-title">
+                <h1>Staff Master</h1>
+            </div>
+            <div class="user-info">
+                <span id="currentDateTime"></span>
+                <span class="user">
+                    <i class="fas fa-user-circle"></i>
+                    <span id="userName">Manish Arora</span>
+                </span>
+            </div>
+        </div>
+
+        <div class="page-content">
+            <!-- Search and Filter Section -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Search Staff</h2>
+                    <div class="header-actions">
+                        <button class="btn btn-primary" onclick="showAddStaffModal()">
+                            <i class="fas fa-plus"></i> Add Staff
+                        </button>
+                        <button class="btn btn-info" onclick="printStaffList()">
+                            <i class="fas fa-print"></i> Print List
+                        </button>
+                        <button class="btn btn-success" onclick="exportStaffData()">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="search-filter-section">
+                    <div class="search-filter-row">
+                        <div class="form-group">
+                            <label for="searchStaff">Search</label>
+                            <input type="text" id="searchStaff" placeholder="Search by Name, Staff ID, Phone">
+                        </div>
+                        <div class="form-group">
+                            <label for="roleFilter">Role</label>
+                            <select id="roleFilter">
+                                <option value="">All Roles</option>
+                                <option value="Doctor">Doctor</option>
+                                <option value="Nurse">Nurse</option>
+                                <option value="Helper">Helper</option>
+                                <option value="Technician">Technician</option>
+                                <option value="Administrator">Administrator</option>
+                                <option value="Pharmacist">Pharmacist</option>
+                                <option value="Receptionist">Receptionist</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="departmentFilter">Department</label>
+                            <select id="departmentFilter">
+                                <option value="">All Departments</option>
+                                <option value="Emergency">Emergency</option>
+                                <option value="ICU">ICU</option>
+                                <option value="OPD">OPD</option>
+                                <option value="IPD">IPD</option>
+                                <option value="Laboratory">Laboratory</option>
+                                <option value="Pharmacy">Pharmacy</option>
+                                <option value="Radiology">Radiology</option>
+                                <option value="Administration">Administration</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="statusFilter">Status</label>
+                            <select id="statusFilter">
+                                <option value="">All Status</option>
+                                <option value="Active">Active</option>
+                                <option value="On Leave">On Leave</option>
+                                <option value="Inactive">Inactive</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-secondary" onclick="applyStaffFilters()">
+                            <i class="fas fa-search"></i> Filter
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Staff Statistics -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="totalStaff">0</h3>
+                        <p>Total Staff</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-user-md"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="totalDoctors">0</h3>
+                        <p>Doctors</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-user-nurse"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="totalNurses">0</h3>
+                        <p>Nurses</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-hands-helping"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="totalHelpers">0</h3>
+                        <p>Support Staff</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Staff List -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Staff Records</h2>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Photo</th>
+                                <th>Staff ID</th>
+                                <th>Name</th>
+                                <th>Role</th>
+                                <th>Department</th>
+                                <th>Qualification</th>
+                                <th>Experience</th>
+                                <th>Contact</th>
+                                <th>Shift</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="staffList">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Staff Modal -->
+    <div class="modal" id="staffModal">
+        <div class="modal-content modal-xl">
+            <div class="modal-header">
+                <h2 id="staffModalTitle">Add New Staff</h2>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="staffForm">
+                    <input type="hidden" id="staffId">
+                    
+                    <!-- Personal Information -->
+                    <div class="form-section">
+                        <h3>Personal Information</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="staffCode">Staff ID *</label>
+                                <input type="text" id="staffCode" required readonly>
+                            </div>
+                            <div class="form-group">
+                                <label for="employeeId">Employee ID</label>
+                                <input type="text" id="employeeId">
+                            </div>
+                            <div class="form-group">
+                                <label for="joiningDate">Joining Date *</label>
+                                <input type="date" id="joiningDate" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="title">Title</label>
+                                <select id="title">
+                                    <option value="Mr.">Mr.</option>
+                                    <option value="Ms.">Ms.</option>
+                                    <option value="Mrs.">Mrs.</option>
+                                    <option value="Dr.">Dr.</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="firstName">First Name *</label>
+                                <input type="text" id="firstName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="lastName">Last Name *</label>
+                                <input type="text" id="lastName" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="dob">Date of Birth</label>
+                                <input type="date" id="dob">
+                            </div>
+                            <div class="form-group">
+                                <label for="gender">Gender *</label>
+                                <select id="gender" required>
+                                    <option value="">Select Gender</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="bloodGroup">Blood Group</label>
+                                <select id="bloodGroup">
+                                    <option value="">Select Blood Group</option>
+                                    <option value="A+">A+</option>
+                                    <option value="A-">A-</option>
+                                    <option value="B+">B+</option>
+                                    <option value="B-">B-</option>
+                                    <option value="AB+">AB+</option>
+                                    <option value="AB-">AB-</option>
+                                    <option value="O+">O+</option>
+                                    <option value="O-">O-</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Professional Information -->
+                    <div class="form-section">
+                        <h3>Professional Information</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="role">Role *</label>
+                                <select id="role" required onchange="updateRoleFields()">
+                                    <option value="">Select Role</option>
+                                    <option value="Doctor">Doctor</option>
+                                    <option value="Nurse">Nurse</option>
+                                    <option value="Helper">Helper</option>
+                                    <option value="Technician">Technician</option>
+                                    <option value="Administrator">Administrator</option>
+                                    <option value="Pharmacist">Pharmacist</option>
+                                    <option value="Receptionist">Receptionist</option>
+                                    <option value="Security">Security</option>
+                                    <option value="Housekeeping">Housekeeping</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="department">Department *</label>
+                                <select id="department" required>
+                                    <option value="">Select Department</option>
+                                    <option value="Emergency">Emergency</option>
+                                    <option value="ICU">ICU</option>
+                                    <option value="OPD">OPD</option>
+                                    <option value="IPD">IPD</option>
+                                    <option value="Laboratory">Laboratory</option>
+                                    <option value="Pharmacy">Pharmacy</option>
+                                    <option value="Radiology">Radiology</option>
+                                    <option value="Administration">Administration</option>
+                                    <option value="Maintenance">Maintenance</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="designation">Designation</label>
+                                <select id="designation">
+                                    <option value="">Select Designation</option>
+                                    <option value="Junior">Junior</option>
+                                    <option value="Senior">Senior</option>
+                                    <option value="Assistant">Assistant</option>
+                                    <option value="Associate">Associate</option>
+                                    <option value="Head">Head</option>
+                                    <option value="Chief">Chief</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="qualification">Qualification *</label>
+                                <input type="text" id="qualification" required placeholder="e.g., MBBS, BSc Nursing, Diploma">
+                            </div>
+                            <div class="form-group">
+                                <label for="experience">Years of Experience</label>
+                                <input type="number" id="experience" min="0" max="50">
+                            </div>
+                            <div class="form-group">
+                                <label for="licenseNumber">License/Registration No</label>
+                                <input type="text" id="licenseNumber" placeholder="Professional license number">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="specialization">Specialization</label>
+                                <input type="text" id="specialization" placeholder="Area of specialization">
+                            </div>
+                            <div class="form-group">
+                                <label for="languages">Languages Known</label>
+                                <input type="text" id="languages" placeholder="e.g., English, Hindi, Tamil">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contact Information -->
+                    <div class="form-section">
+                        <h3>Contact Information</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="mobile">Mobile Number *</label>
+                                <input type="tel" id="mobile" pattern="[0-9]{10}" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email *</label>
+                                <input type="email" id="email" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="alternatePhone">Alternate Phone</label>
+                                <input type="tel" id="alternatePhone" pattern="[0-9]{10}">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="address">Address</label>
+                            <textarea id="address" rows="3"></textarea>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="city">City</label>
+                                <input type="text" id="city">
+                            </div>
+                            <div class="form-group">
+                                <label for="state">State</label>
+                                <input type="text" id="state">
+                            </div>
+                            <div class="form-group">
+                                <label for="pincode">Pincode</label>
+                                <input type="text" id="pincode" pattern="[0-9]{6}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Work Schedule -->
+                    <div class="form-section">
+                        <h3>Work Schedule</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="shift">Shift *</label>
+                                <select id="shift" required>
+                                    <option value="">Select Shift</option>
+                                    <option value="Day">Day Shift (6 AM - 2 PM)</option>
+                                    <option value="Evening">Evening Shift (2 PM - 10 PM)</option>
+                                    <option value="Night">Night Shift (10 PM - 6 AM)</option>
+                                    <option value="Rotating">Rotating Shifts</option>
+                                    <option value="Fixed">Fixed Hours</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="workingDays">Working Days</label>
+                                <div class="checkbox-group">
+                                    <label><input type="checkbox" value="Monday"> Monday</label>
+                                    <label><input type="checkbox" value="Tuesday"> Tuesday</label>
+                                    <label><input type="checkbox" value="Wednesday"> Wednesday</label>
+                                    <label><input type="checkbox" value="Thursday"> Thursday</label>
+                                    <label><input type="checkbox" value="Friday"> Friday</label>
+                                    <label><input type="checkbox" value="Saturday"> Saturday</label>
+                                    <label><input type="checkbox" value="Sunday"> Sunday</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="startTime">Start Time</label>
+                                <input type="time" id="startTime">
+                            </div>
+                            <div class="form-group">
+                                <label for="endTime">End Time</label>
+                                <input type="time" id="endTime">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Salary Information -->
+                    <div class="form-section">
+                        <h3>Salary Information</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="basicSalary">Basic Salary (₹)</label>
+                                <input type="number" id="basicSalary" min="0">
+                            </div>
+                            <div class="form-group">
+                                <label for="allowances">Allowances (₹)</label>
+                                <input type="number" id="allowances" min="0">
+                            </div>
+                            <div class="form-group">
+                                <label for="totalSalary">Total Salary (₹)</label>
+                                <input type="number" id="totalSalary" readonly>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Emergency Contact -->
+                    <div class="form-section">
+                        <h3>Emergency Contact</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="emergencyContactName">Contact Name</label>
+                                <input type="text" id="emergencyContactName">
+                            </div>
+                            <div class="form-group">
+                                <label for="emergencyContactRelation">Relationship</label>
+                                <input type="text" id="emergencyContactRelation">
+                            </div>
+                            <div class="form-group">
+                                <label for="emergencyContactPhone">Contact Number</label>
+                                <input type="tel" id="emergencyContactPhone" pattern="[0-9]{10}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Additional Information -->
+                    <div class="form-section">
+                        <h3>Additional Information</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="status">Status *</label>
+                                <select id="status" required>
+                                    <option value="Active">Active</option>
+                                    <option value="On Leave">On Leave</option>
+                                    <option value="Inactive">Inactive</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="workLocation">Work Location</label>
+                                <input type="text" id="workLocation" placeholder="Floor/Wing/Room">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="notes">Notes</label>
+                            <textarea id="notes" rows="3" placeholder="Any additional notes about the staff member"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Save Staff</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeStaffModal()">Cancel</button>
+                        <button type="button" class="btn btn-info" onclick="printStaffDetails()">
+                            <i class="fas fa-print"></i> Print ID Card
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Staff View Modal -->
+    <div class="modal" id="staffViewModal">
+        <div class="modal-content modal-xl">
+            <div class="modal-header">
+                <h2>Staff Details</h2>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="staffDetailsContent">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/sidebar-manager.js"></script>
+    <script src="../js/main.js"></script>
+    <script src="../js/staff-master.js"></script>
+</body>
+</html>

@@ -170,6 +170,10 @@ class SidebarManager {
                                 <i class="fas fa-user-md"></i>
                                 <span>Doctor Master</span>
                             </a>
+                            <a href="staff-master-page.html" class="nav-item" data-page="staff-master-page">
+                                <i class="fas fa-user-md"></i>
+                                <span>staff master/span>
+                            </a>
                             <a href="test-master.html" class="nav-item" data-page="test-master">
                                 <i class="fas fa-vial"></i>
                                 <span>Test Master</span>

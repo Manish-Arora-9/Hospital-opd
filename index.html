@@ -10,123 +10,7 @@
 </head>
 <body>
     <!-- Sidebar -->
-    <div class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <h2><i class="fas fa-hospital"></i> HMS</h2>
-            <button class="sidebar-toggle" onclick="toggleSidebar()">
-                <i class="fas fa-bars"></i>
-            </button>
-        </div>
-        
-        <nav class="sidebar-nav">
-            <a href="index.html" class="nav-link active">
-                <i class="fas fa-tachometer-alt"></i>
-                <span>Dashboard</span>
-            </a>
-            
-            <div class="nav-section">
-                <div class="nav-section-header" onclick="toggleSection('registration')">
-                    <span><i class="fas fa-user-plus"></i> Registration</span>
-                    <i class="fas fa-chevron-down section-toggle"></i>
-                </div>
-                <div class="nav-section-content" id="registration-section">
-                    <a href="pages/registration.html" class="nav-link">
-                        <i class="fas fa-plus-circle"></i>
-                        <span>New Registration</span>
-                    </a>
-                    <a href="pages/patients.html" class="nav-link">
-                        <i class="fas fa-users"></i>
-                        <span>All Patients</span>
-                    </a>
-                </div>
-            </div>
-
-            <div class="nav-section">
-                <div class="nav-section-header" onclick="toggleSection('opd')">
-                    <span><i class="fas fa-stethoscope"></i> OPD</span>
-                    <i class="fas fa-chevron-down section-toggle"></i>
-                </div>
-                <div class="nav-section-content" id="opd-section">
-                    <a href="pages/opd.html" class="nav-link">
-                        <i class="fas fa-calendar-check"></i>
-                        <span>OPD Management</span>
-                    </a>
-                </div>
-            </div>
-
-            <div class="nav-section">
-                <div class="nav-section-header" onclick="toggleSection('ipd')">
-                    <span><i class="fas fa-bed"></i> IPD</span>
-                    <i class="fas fa-chevron-down section-toggle"></i>
-                </div>
-                <div class="nav-section-content" id="ipd-section">
-                    <a href="pages/ipd.html" class="nav-link">
-                        <i class="fas fa-procedures"></i>
-                        <span>IPD Management</span>
-                    </a>
-                </div>
-            </div>
-
-            <div class="nav-section">
-                <div class="nav-section-header" onclick="toggleSection('lab')">
-                    <span><i class="fas fa-flask"></i> Laboratory</span>
-                    <i class="fas fa-chevron-down section-toggle"></i>
-                </div>
-                <div class="nav-section-content" id="lab-section">
-                    <a href="pages/lab.html" class="nav-link">
-                        <i class="fas fa-vial"></i>
-                        <span>Lab Tests</span>
-                    </a>
-                </div>
-            </div>
-
-            <div class="nav-section">
-                <div class="nav-section-header" onclick="toggleSection('masters')">
-                    <span><i class="fas fa-cogs"></i> Masters</span>
-                    <i class="fas fa-chevron-down section-toggle"></i>
-                </div>
-                <div class="nav-section-content" id="masters-section">
-                    <a href="pages/patient-master.html" class="nav-link">
-                        <i class="fas fa-user-friends"></i>
-                        <span>Patient Master</span>
-                    </a>
-                    <a href="pages/doctor-master.html" class="nav-link">
-                        <i class="fas fa-user-md"></i>
-                        <span>Doctor Master</span>
-                    </a>
-                    <a href="pages/department-master.html" class="nav-link">
-                        <i class="fas fa-building"></i>
-                        <span>Department Master</span>
-                    </a>
-                    <a href="pages/medicine-master.html" class="nav-link">
-                        <i class="fas fa-pills"></i>
-                        <span>Medicine Master</span>
-                    </a>
-                    <a href="pages/test-master.html" class="nav-link">
-                        <i class="fas fa-microscope"></i>
-                        <span>Test Master</span>
-                    </a>
-                </div>
-            </div>
-
-            <div class="nav-section">
-                <div class="nav-section-header" onclick="toggleSection('reports')">
-                    <span><i class="fas fa-chart-bar"></i> Reports</span>
-                    <i class="fas fa-chevron-down section-toggle"></i>
-                </div>
-                <div class="nav-section-content" id="reports-section">
-                    <a href="pages/cashflow.html" class="nav-link">
-                        <i class="fas fa-rupee-sign"></i>
-                        <span>Cash Flow</span>
-                    </a>
-                    <a href="pages/analytics.html" class="nav-link">
-                        <i class="fas fa-chart-line"></i>
-                        <span>Analytics</span>
-                    </a>
-                </div>
-            </div>
-        </nav>
-    </div>
+   
 
     <!-- Main Content Container -->
     <div class="main-content" id="mainContent">
@@ -144,7 +28,7 @@
         </div>
         <div id="pageContent"></div>
     </div>
-
+    
     <script src="js/main.js"></script>
 </body>
 </html>
